@@ -40,6 +40,17 @@ if stock_symbol:
             st.error(f"Unable to fetch data for {stock_symbol} for the selected time period. Please try a different time period or stock symbol.")
         else:
             try:
+                # Convert all relevant columns to float
+                numeric_columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'MACD', 'Signal', 'Histogram', 'RSI', 'BB_Upper', 'BB_Middle', 'BB_Lower', 'SMA_50', 'SMA_200']
+                for col in numeric_columns:
+                    if col in chart_data.columns:
+                        chart_data[col] = pd.to_numeric(chart_data[col], errors='coerce')
+
+                # Convert Fibonacci columns to float
+                fib_columns = [col for col in chart_data.columns if col.startswith('Fib_')]
+                for col in fib_columns:
+                    chart_data[col] = pd.to_numeric(chart_data[col], errors='coerce')
+
                 fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
 
                 # Candlestick chart
@@ -78,8 +89,8 @@ if stock_symbol:
 
                 # RSI
                 fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI"), row=4, col=1)
-                fig.add_hline(y=70, line_dash="dash", line_color="red", row="4", col="1")
-                fig.add_hline(y=30, line_dash="dash", line_color="green", row="4", col="1")
+                fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
+                fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
 
                 fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators", xaxis_title="Date")
                 fig.update_xaxes(rangeslider_visible=False)
