@@ -74,8 +74,8 @@ def get_advanced_stock_data(symbol, period="1mo"):
     if data is not None and not data.empty:
         data['MACD'] = calculate_macd(data)['MACD']
         data['RSI'] = calculate_rsi(data)
-        bollinger_bands = calculate_bollinger_bands(data)
-        data['BB_Upper'] = bollinger_bands['Upper Band']
-        data['BB_Middle'] = bollinger_bands['Middle Band']
-        data['BB_Lower'] = bollinger_bands['Lower Band']
+        bb = calculate_bollinger_bands(data)
+        data['BB_Upper'] = bb['Upper Band']
+        data['BB_Middle'] = bb['Middle Band']
+        data['BB_Lower'] = bb['Lower Band']
     return data
