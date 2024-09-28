@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from stock_data import get_advanced_stock_data, get_stock_info
 from news_scraper import get_news_articles
-from database import initialize_db, save_stock_to_db, get_user_stocks
+from database import initialize_db, save_stock_to_db, get_user_stocks, remove_stock_from_db
 from utils import convert_to_csv
 
 # Initialize the database
@@ -78,8 +78,8 @@ if stock_symbol:
 
                 # RSI
                 fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI"), row=4, col=1)
-                fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
-                fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
+                fig.add_hline(y=70, line_dash="dash", line_color="red", row="4", col="1")
+                fig.add_hline(y=30, line_dash="dash", line_color="green", row="4", col="1")
 
                 fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators", xaxis_title="Date")
                 fig.update_xaxes(rangeslider_visible=False)
@@ -112,15 +112,9 @@ if stock_symbol:
         )
 
         # Save stock to database
-        if st.button("Track this stock"):
+        if st.button("Add to Watchlist"):
             save_stock_to_db(stock_symbol)
-            st.success(f"Added {stock_symbol} to your tracked stocks!")
-
-        # Display user's tracked stocks
-        user_stocks = get_user_stocks()
-        if user_stocks:
-            st.subheader("Your Tracked Stocks")
-            st.write(", ".join(user_stocks))
+            st.success(f"Added {stock_symbol} to your watchlist!")
 
         # Display news articles
         st.subheader("Recent News Articles")
@@ -131,6 +125,28 @@ if stock_symbol:
             st.write("---")
     else:
         st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
+
+# Display user's watchlist
+st.sidebar.title("Your Watchlist")
+user_stocks = get_user_stocks()
+if user_stocks:
+    for stock in user_stocks:
+        col1, col2 = st.sidebar.columns([3, 1])
+        stock_info = get_stock_info(stock)
+        if stock_info:
+            col1.write(f"**{stock}**")
+            col1.write(f"Price: ${stock_info['currentPrice']}")
+            percent_change = stock_info['percentChange']
+            if isinstance(percent_change, (int, float)):
+                col1.write(f"Change: {percent_change:.2f}%")
+            else:
+                col1.write(f"Change: {percent_change}")
+        if col2.button("Remove", key=f"remove_{stock}"):
+            remove_stock_from_db(stock)
+            st.sidebar.success(f"Removed {stock} from your watchlist!")
+            st.rerun()
+else:
+    st.sidebar.write("Your watchlist is empty. Add stocks to track them.")
 
 # Add some information about the app
 st.sidebar.title("About")

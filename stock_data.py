@@ -19,7 +19,9 @@ def get_stock_info(symbol):
             'marketCap': float(info.get('marketCap', 0)),
             'trailingPE': info.get('trailingPE', 'N/A'),
             'trailingEps': info.get('trailingEps', 'N/A'),
-            'dividendYield': info.get('dividendYield', 'N/A')
+            'dividendYield': info.get('dividendYield', 'N/A'),
+            'currentPrice': info.get('currentPrice', 'N/A'),
+            'percentChange': info.get('regularMarketChangePercent', 'N/A')
         }
     except Exception as e:
         print(f"Error fetching stock info: {e}")
@@ -47,11 +49,6 @@ def calculate_bollinger_bands(data, window=20):
     rolling_std = data['Close'].rolling(window=window).std()
     upper_band = rolling_mean + (rolling_std * 2)
     lower_band = rolling_mean - (rolling_std * 2)
-    print("Debug: Bollinger Bands calculation")
-    print(f"Rolling mean: {rolling_mean.head()}")
-    print(f"Rolling std: {rolling_std.head()}")
-    print(f"Upper band: {upper_band.head()}")
-    print(f"Lower band: {lower_band.head()}")
     return pd.DataFrame({'BB_Middle': rolling_mean, 'BB_Upper': upper_band, 'BB_Lower': lower_band})
 
 def calculate_fibonacci_retracement(data):
@@ -71,46 +68,31 @@ def detect_sma_crossover(data):
     return crossover_points
 
 def get_advanced_stock_data(symbol, period="1mo"):
-    print(f"Debug: get_advanced_stock_data called with symbol={symbol}, period={period}")
     data = get_stock_data(symbol, period)
-    print(f"Debug: get_stock_data returned data: {data is not None}")
     if data is None:
-        print("Debug: data is None, returning None")
         return None
     if not data.empty:
         try:
-            print("Debug: Calculating MACD")
             macd_data = calculate_macd(data)
             data['MACD'] = macd_data['MACD']
             data['Signal'] = macd_data['Signal']
             data['Histogram'] = macd_data['Histogram']
             
-            print("Debug: Calculating RSI")
             data['RSI'] = calculate_rsi(data)
             
-            print("Debug: Calculating Bollinger Bands")
             bb_data = calculate_bollinger_bands(data)
             data['BB_Upper'] = bb_data['BB_Upper']
             data['BB_Middle'] = bb_data['BB_Middle']
             data['BB_Lower'] = bb_data['BB_Lower']
             
-            print("Debug: Calculating Fibonacci Retracement")
             fib_data = calculate_fibonacci_retracement(data)
             for col in fib_data.columns:
                 data[col] = fib_data[col]
             
-            print("Debug: Calculating SMAs")
             data['SMA_50'] = calculate_sma(data, 50)
             data['SMA_200'] = calculate_sma(data, 200)
             
-            print("Debug: Detecting SMA Crossover")
             data['SMA_Crossover'] = detect_sma_crossover(data)
-            
-            print("Debug: Advanced indicators calculation completed")
-            print("Debug: Data shape:", data.shape)
-            print("Debug: Data columns:", data.columns)
-            print("Debug: First few rows of data:")
-            print(data.head())
             
             return data
         except Exception as e:

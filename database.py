@@ -68,3 +68,19 @@ def get_user_stocks():
     finally:
         cur.close()
         conn.close()
+
+def remove_stock_from_db(symbol):
+    """
+    Remove a stock symbol from the database.
+    """
+    conn = psycopg2.connect(**db_params)
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("DELETE FROM user_stocks WHERE symbol = %s", [symbol])
+        conn.commit()
+    except Exception as e:
+        print(f"Error removing stock from database: {e}")
+    finally:
+        cur.close()
+        conn.close()
