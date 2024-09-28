@@ -319,3 +319,10 @@ st.sidebar.markdown("""
 
 **Economic Indicators:** These provide context for the broader economic conditions that may impact stock performance. Common indicators include Consumer Price Index (CPI), Unemployment Rate, and Gross Domestic Product (GDP).
 """)
+
+# Add Dear User guide to the sidebar
+st.sidebar.title("User Guide")
+if st.sidebar.button("View User Guide"):
+    with open("Dear_user.py", "r") as f:
+        user_guide = f.read()
+    st.sidebar.text_area("Dear User", user_guide, height=300)
