@@ -23,7 +23,13 @@ def get_stock_info(symbol):
             'currentPrice': info.get('currentPrice', 'N/A'),
             'percentChange': info.get('regularMarketChangePercent', 'N/A'),
             'longName': info.get('longName', 'N/A'),
-            'longBusinessSummary': info.get('longBusinessSummary', 'N/A')
+            'longBusinessSummary': info.get('longBusinessSummary', 'N/A'),
+            'founded': info.get('founded', 'N/A'),
+            'industry': info.get('industry', 'N/A'),
+            'sector': info.get('sector', 'N/A'),
+            'website': info.get('website', 'N/A'),
+            'fullTimeEmployees': info.get('fullTimeEmployees', 'N/A'),
+            'products': info.get('products', 'N/A')
         }
     except Exception as e:
         print(f"Error fetching stock info: {e}")

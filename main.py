@@ -26,6 +26,37 @@ if stock_symbol:
         # Display stock name and symbol
         st.header(f"{stock_symbol} - {stock_info['longName']}")
         
+        # Display company overview
+        st.subheader("Company Overview")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown(f"| **Founded**: {stock_info['founded']} |")
+            st.markdown("| **Target Markets**: |")
+            st.markdown(f"| - {stock_info['sector']} |")
+            st.markdown(f"| - {stock_info['industry']} |")
+            st.markdown("| **Sales Channels**: |")
+            st.markdown("| - Retail stores |")
+            st.markdown("| - Online |")
+            st.markdown("| - Direct sales |")
+            st.markdown("| - Third-party carriers, retailers |")
+
+        with col2:
+            products = stock_info['products'].split(',')[:5] if isinstance(stock_info['products'], str) else ['N/A']
+            st.markdown("| **Main Products**: |")
+            for product in products:
+                st.markdown(f"| - {product.strip()} |")
+            
+            st.markdown("| **Software Ecosystem**: |")
+            st.markdown("| - N/A |")
+            st.markdown("| - N/A |")
+            st.markdown("| - N/A |")
+            
+            st.markdown("| **Additional Services**: |")
+            st.markdown(f"| - Website: {stock_info['website']} |")
+            st.markdown(f"| - Employees: {stock_info['fullTimeEmployees']} |")
+            st.markdown("| - N/A |")
+
         # Display company description
         st.subheader("Company Description")
         st.write(stock_info['longBusinessSummary'])
