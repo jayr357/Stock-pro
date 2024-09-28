@@ -23,6 +23,13 @@ if stock_symbol:
     stock_info = get_stock_info(stock_symbol)
 
     if stock_data is not None and stock_info is not None:
+        # Display stock name and symbol
+        st.header(f"{stock_symbol} - {stock_info['longName']}")
+        
+        # Display company description
+        st.subheader("Company Description")
+        st.write(stock_info['longBusinessSummary'])
+
         # Display financial metrics
         st.subheader("Financial Metrics")
         col1, col2, col3, col4 = st.columns(4)
@@ -145,7 +152,7 @@ if user_stocks:
         col1, col2 = st.sidebar.columns([3, 1])
         stock_info = get_stock_info(stock)
         if stock_info:
-            col1.write(f"**{stock}**")
+            col1.write(f"**{stock} - {stock_info['longName']}**")
             col1.write(f"Price: ${stock_info['currentPrice']}")
             percent_change = stock_info['percentChange']
             if isinstance(percent_change, (int, float)):

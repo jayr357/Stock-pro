@@ -21,7 +21,9 @@ def get_stock_info(symbol):
             'trailingEps': info.get('trailingEps', 'N/A'),
             'dividendYield': info.get('dividendYield', 'N/A'),
             'currentPrice': info.get('currentPrice', 'N/A'),
-            'percentChange': info.get('regularMarketChangePercent', 'N/A')
+            'percentChange': info.get('regularMarketChangePercent', 'N/A'),
+            'longName': info.get('longName', 'N/A'),
+            'longBusinessSummary': info.get('longBusinessSummary', 'N/A')
         }
     except Exception as e:
         print(f"Error fetching stock info: {e}")
