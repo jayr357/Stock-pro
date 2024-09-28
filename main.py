@@ -39,11 +39,6 @@ if stock_symbol:
         if chart_data is None or chart_data.empty:
             st.error(f"Unable to fetch data for {stock_symbol} for the selected time period. Please try a different time period or stock symbol.")
         else:
-            print("Debug: chart_data shape:", chart_data.shape)
-            print("Debug: chart_data columns:", chart_data.columns)
-            print("Debug: chart_data types:", chart_data.dtypes)
-            print("Debug: chart_data head:")
-            print(chart_data.head())
             try:
                 fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
 
@@ -56,12 +51,12 @@ if stock_symbol:
                                              name="Price"), row=1, col=1)
 
                 # Bollinger Bands
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Upper'], name="BB Upper", line=dict(color="gray", width=1)), row=1, col=1)
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Middle'], name="BB Middle", line=dict(color="gray", width=1)), row=1, col=1)
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Lower'], name="BB Lower", line=dict(color="gray", width=1)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Upper'], name="BB Upper", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Middle'], name="BB Middle", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Lower'], name="BB Lower", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
 
                 # Fibonacci Retracement
-                fib_colors = ['purple', 'blue', 'green', 'orange', 'red']
+                fib_colors = ['rgba(128, 0, 128, 0.3)', 'rgba(0, 0, 255, 0.3)', 'rgba(0, 128, 0, 0.3)', 'rgba(255, 165, 0, 0.3)', 'rgba(255, 0, 0, 0.3)']
                 for i, level in enumerate([0.236, 0.382, 0.5, 0.618, 1]):
                     fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[f'Fib_{int(level*100)}'], name=f"Fib {level}", line=dict(color=fib_colors[i], width=1, dash='dash')), row=1, col=1)
 
@@ -71,7 +66,7 @@ if stock_symbol:
 
                 # SMA Crossover
                 crossover_points = chart_data[chart_data['SMA_Crossover']]
-                fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=10, color='yellow', line=dict(width=2, color='black'))), row=1, col=1)
+                fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=15, color='yellow', line=dict(width=2, color='black'))), row=1, col=1)
 
                 # Volume
                 fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume"), row=2, col=1)
@@ -83,8 +78,8 @@ if stock_symbol:
 
                 # RSI
                 fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI"), row=4, col=1)
-                fig.add_hline(y=70, line_dash="dash", line_color="red", row="4", col="1")
-                fig.add_hline(y=30, line_dash="dash", line_color="green", row="4", col="1")
+                fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
+                fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
 
                 fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators", xaxis_title="Date")
                 fig.update_xaxes(rangeslider_visible=False)
@@ -92,11 +87,13 @@ if stock_symbol:
 
                 # Display correlation matrix
                 st.subheader("Correlation Matrix")
-                correlation_matrix = chart_data[['Close', 'Volume', 'MACD', 'RSI', 'SMA_50', 'SMA_200']].corr()
-                st.plotly_chart(go.Figure(data=go.Heatmap(z=correlation_matrix.values,
-                                                          x=correlation_matrix.index,
-                                                          y=correlation_matrix.columns,
-                                                          colorscale='Viridis')))
+                correlation_matrix = chart_data[['Close', 'Volume', 'MACD', 'RSI', 'SMA_50', 'SMA_200', 'BB_Upper', 'BB_Lower']].corr()
+                fig_corr = go.Figure(data=go.Heatmap(z=correlation_matrix.values,
+                                                     x=correlation_matrix.index,
+                                                     y=correlation_matrix.columns,
+                                                     colorscale='Viridis'))
+                fig_corr.update_layout(height=600, width=800)
+                st.plotly_chart(fig_corr)
 
             except Exception as e:
                 st.error(f"Error creating chart: {str(e)}")

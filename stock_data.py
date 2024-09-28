@@ -47,6 +47,11 @@ def calculate_bollinger_bands(data, window=20):
     rolling_std = data['Close'].rolling(window=window).std()
     upper_band = rolling_mean + (rolling_std * 2)
     lower_band = rolling_mean - (rolling_std * 2)
+    print("Debug: Bollinger Bands calculation")
+    print(f"Rolling mean: {rolling_mean.head()}")
+    print(f"Rolling std: {rolling_std.head()}")
+    print(f"Upper band: {upper_band.head()}")
+    print(f"Lower band: {lower_band.head()}")
     return pd.DataFrame({'BB_Middle': rolling_mean, 'BB_Upper': upper_band, 'BB_Lower': lower_band})
 
 def calculate_fibonacci_retracement(data):
