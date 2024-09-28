@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from stock_data import get_stock_data, get_stock_info
+from plotly.subplots import make_subplots
+from stock_data import get_advanced_stock_data, get_stock_info
 from news_scraper import get_news_articles
 from database import initialize_db, save_stock_to_db, get_user_stocks
 from utils import convert_to_csv
@@ -9,7 +10,7 @@ from utils import convert_to_csv
 # Initialize the database
 initialize_db()
 
-st.set_page_config(page_title="Stock Data Visualization", page_icon="assets/favicon.svg")
+st.set_page_config(page_title="Stock Data Visualization", page_icon="assets/favicon.svg", layout="wide")
 
 st.title("Stock Data Retrieval and Visualization Tool")
 
@@ -18,7 +19,7 @@ stock_symbol = st.text_input("Enter a stock symbol (e.g., AAPL):", value="AAPL")
 
 if stock_symbol:
     # Fetch stock data
-    stock_data = get_stock_data(stock_symbol)
+    stock_data = get_advanced_stock_data(stock_symbol)
     stock_info = get_stock_info(stock_symbol)
 
     if stock_data is not None and stock_info is not None:
@@ -30,18 +31,40 @@ if stock_symbol:
         col3.metric("EPS", f"${stock_info['trailingEps']:.2f}" if isinstance(stock_info['trailingEps'], (int, float)) else "N/A")
         col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
-        # Stock price chart
-        st.subheader("Stock Price Chart")
+        # Stock price chart with advanced indicators
+        st.subheader("Stock Price Chart with Advanced Indicators")
         time_period = st.selectbox("Select time period", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
-        chart_data = get_stock_data(stock_symbol, period=time_period)
+        chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
         
-        fig = go.Figure(data=[go.Candlestick(x=chart_data.index,
-                                             open=chart_data['Open'],
-                                             high=chart_data['High'],
-                                             low=chart_data['Low'],
-                                             close=chart_data['Close'])])
-        fig.update_layout(title=f"{stock_symbol} Stock Price", xaxis_title="Date", yaxis_title="Price")
-        st.plotly_chart(fig)
+        fig = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.2, 0.15, 0.15])
+
+        # Candlestick chart
+        fig.add_trace(go.Candlestick(x=chart_data.index,
+                                     open=chart_data['Open'],
+                                     high=chart_data['High'],
+                                     low=chart_data['Low'],
+                                     close=chart_data['Close'],
+                                     name="Price"), row=1, col=1)
+
+        # Bollinger Bands
+        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Upper'], name="BB Upper", line=dict(color="gray", width=1)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Middle'], name="BB Middle", line=dict(color="gray", width=1)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Lower'], name="BB Lower", line=dict(color="gray", width=1)), row=1, col=1)
+
+        # Volume
+        fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume"), row=2, col=1)
+
+        # MACD
+        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['MACD'], name="MACD"), row=3, col=1)
+
+        # RSI
+        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI"), row=4, col=1)
+        fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
+
+        fig.update_layout(height=800, title=f"{stock_symbol} Stock Price and Indicators", xaxis_title="Date")
+        fig.update_xaxes(rangeslider_visible=False)
+        st.plotly_chart(fig, use_container_width=True)
 
         # Download CSV
         csv = convert_to_csv(stock_data)
@@ -75,4 +98,14 @@ if stock_symbol:
 
 # Add some information about the app
 st.sidebar.title("About")
-st.sidebar.info("This app allows you to retrieve and visualize stock data, track stocks, and view related news articles.")
+st.sidebar.info("This app allows you to retrieve and visualize stock data, track stocks, and view related news articles. It now includes advanced financial indicators such as MACD, RSI, and Bollinger Bands.")
+
+# Explanation of indicators
+st.sidebar.title("Indicator Explanations")
+st.sidebar.markdown("""
+**Bollinger Bands:** These consist of a middle band being an N-period simple moving average (SMA), an upper band at K times an N-period standard deviation above the middle band, and a lower band at K times an N-period standard deviation below the middle band. Bollinger Bands help determine overbought and oversold conditions.
+
+**MACD (Moving Average Convergence Divergence):** This indicator is calculated by subtracting the 26-period Exponential Moving Average (EMA) from the 12-period EMA. The MACD line is often displayed with a 9-day EMA of the MACD itself, called the "signal line". MACD helps to identify trending and momentum.
+
+**RSI (Relative Strength Index):** This momentum indicator measures the magnitude of recent price changes to evaluate overbought or oversold conditions. It is displayed as an oscillator (a line graph that moves between two extremes) and can have a reading from 0 to 100. Traditional interpretation and usage of the RSI are that values of 70 or above indicate that a security is becoming overbought or overvalued, and may be primed for a trend reversal or corrective pullback in price. An RSI reading of 30 or below indicates an oversold or undervalued condition.
+""")
