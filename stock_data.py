@@ -15,6 +15,7 @@ def get_stock_info(symbol):
     try:
         stock = yf.Ticker(symbol)
         info = stock.info
+        sector_contribution = get_sector_contribution(stock)
         return {
             'marketCap': float(info.get('marketCap', 0)),
             'trailingPE': info.get('trailingPE', 'N/A'),
@@ -29,10 +30,26 @@ def get_stock_info(symbol):
             'sector': info.get('sector', 'N/A'),
             'website': info.get('website', 'N/A'),
             'fullTimeEmployees': info.get('fullTimeEmployees', 'N/A'),
-            'products': info.get('products', 'N/A')
+            'products': info.get('products', 'N/A'),
+            'sector_contribution': sector_contribution
         }
     except Exception as e:
         print(f"Error fetching stock info: {e}")
+        return None
+
+def get_sector_contribution(stock):
+    try:
+        # This is a placeholder function. In reality, you would need to
+        # implement logic to fetch and calculate sector contribution data.
+        # For now, we'll return some dummy data.
+        return {
+            'Technology': 0.4,
+            'Consumer Cyclical': 0.3,
+            'Healthcare': 0.2,
+            'Financials': 0.1
+        }
+    except Exception as e:
+        print(f"Error fetching sector contribution: {e}")
         return None
 
 def calculate_macd(data):

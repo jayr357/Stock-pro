@@ -25,41 +25,6 @@ if stock_symbol:
     if stock_data is not None and stock_info is not None:
         # Display stock name and symbol
         st.header(f"{stock_symbol} - {stock_info['longName']}")
-        
-        # Display company overview
-        st.subheader("Company Overview")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown(f"| **Founded**: {stock_info['founded']} |")
-            st.markdown("| **Target Markets**: |")
-            st.markdown(f"| - {stock_info['sector']} |")
-            st.markdown(f"| - {stock_info['industry']} |")
-            st.markdown("| **Sales Channels**: |")
-            st.markdown("| - Retail stores |")
-            st.markdown("| - Online |")
-            st.markdown("| - Direct sales |")
-            st.markdown("| - Third-party carriers, retailers |")
-
-        with col2:
-            products = stock_info['products'].split(',')[:5] if isinstance(stock_info['products'], str) else ['N/A']
-            st.markdown("| **Main Products**: |")
-            for product in products:
-                st.markdown(f"| - {product.strip()} |")
-            
-            st.markdown("| **Software Ecosystem**: |")
-            st.markdown("| - N/A |")
-            st.markdown("| - N/A |")
-            st.markdown("| - N/A |")
-            
-            st.markdown("| **Additional Services**: |")
-            st.markdown(f"| - Website: {stock_info['website']} |")
-            st.markdown(f"| - Employees: {stock_info['fullTimeEmployees']} |")
-            st.markdown("| - N/A |")
-
-        # Display company description
-        st.subheader("Company Description")
-        st.write(stock_info['longBusinessSummary'])
 
         # Display financial metrics
         st.subheader("Financial Metrics")
@@ -110,27 +75,47 @@ if stock_symbol:
                     fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[f'Fib_{int(level*100)}'], name=f"Fib {level}", line=dict(color=fib_colors[i], width=1, dash='dash')), row=1, col=1)
 
                 # SMA
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_50'], name="50-day SMA", line=dict(color="blue", width=1)), row=1, col=1)
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_200'], name="200-day SMA", line=dict(color="red", width=1)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_50'], name="50-day SMA", line=dict(color="#00FFFF", width=1)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_200'], name="200-day SMA", line=dict(color="#FF1493", width=1)), row=1, col=1)
 
                 # SMA Crossover
                 crossover_points = chart_data[chart_data['SMA_Crossover']]
-                fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=15, color='yellow', line=dict(width=2, color='black'))), row=1, col=1)
+                fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=15, color='#FFFF00', line=dict(width=2, color='#000000'))), row=1, col=1)
 
                 # Volume
-                fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume"), row=2, col=1)
+                fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume", marker_color='#00CED1'), row=2, col=1)
 
                 # MACD
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['MACD'], name="MACD"), row=3, col=1)
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['Signal'], name="Signal"), row=3, col=1)
-                fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Histogram'], name="Histogram"), row=3, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['MACD'], name="MACD", line=dict(color="#00FA9A")), row=3, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['Signal'], name="Signal", line=dict(color="#FF69B4")), row=3, col=1)
+                fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Histogram'], name="Histogram", marker_color='#1E90FF'), row=3, col=1)
 
                 # RSI
-                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI"), row=4, col=1)
-                fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
-                fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
+                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI", line=dict(color="#FFA500")), row=4, col=1)
+                fig.add_hline(y=70, line_dash="dash", line_color="#FF0000", row=4, col=1)
+                fig.add_hline(y=30, line_dash="dash", line_color="#00FF00", row=4, col=1)
 
-                fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators", xaxis_title="Date")
+                fig.update_layout(
+                    height=1200,
+                    title=f"{stock_symbol} Stock Price and Indicators",
+                    xaxis_title="Date",
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font_color='#FFFFFF',
+                    title_font_color='#FFFFFF',
+                    legend_title_font_color='#FFFFFF',
+                    legend_font_color='#FFFFFF',
+                    xaxis=dict(linecolor='#FF00FF', gridcolor='#333333'),
+                    yaxis=dict(linecolor='#FF00FF', gridcolor='#333333')
+                )
+
+                fig.update_traces(
+                    increasing_line_color='#00FFFF',  # Neon cyan for increasing candles
+                    decreasing_line_color='#FF1493',  # Pink for decreasing candles
+                    increasing_fillcolor='#004444',   # Darker cyan for increasing candles fill
+                    decreasing_fillcolor='#440044'    # Darker magenta for decreasing candles fill
+                )
+
                 fig.update_xaxes(rangeslider_visible=False)
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -172,6 +157,49 @@ if stock_symbol:
             st.markdown(f"[{article['title']}]({article['url']})")
             st.write(article['description'])
             st.write("---")
+
+        # Company Overview and Description (moved to the end)
+        st.subheader("Company Overview")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown(f"| **Founded**: {stock_info['founded']} |")
+            st.markdown("| **Target Markets**: |")
+            st.markdown(f"| - {stock_info['sector']} |")
+            st.markdown(f"| - {stock_info['industry']} |")
+            st.markdown("| **Sales Channels**: |")
+            st.markdown("| - Retail stores |")
+            st.markdown("| - Online |")
+            st.markdown("| - Direct sales |")
+            st.markdown("| - Third-party carriers, retailers |")
+
+        with col2:
+            products = stock_info['products'].split(',')[:5] if isinstance(stock_info['products'], str) else ['N/A']
+            st.markdown("| **Main Products**: |")
+            for product in products:
+                st.markdown(f"| - {product.strip()} |")
+            
+            st.markdown("| **Software Ecosystem**: |")
+            st.markdown("| - N/A |")
+            st.markdown("| - N/A |")
+            st.markdown("| - N/A |")
+            
+            st.markdown("| **Additional Services**: |")
+            st.markdown(f"| - Website: {stock_info['website']} |")
+            st.markdown(f"| - Employees: {stock_info['fullTimeEmployees']} |")
+            st.markdown("| - N/A |")
+
+        # Sector Contribution Pie Chart
+        if 'sector_contribution' in stock_info and stock_info['sector_contribution']:
+            st.subheader("Sector Contribution")
+            fig_sector = go.Figure(data=[go.Pie(labels=list(stock_info['sector_contribution'].keys()),
+                                                values=list(stock_info['sector_contribution'].values()))])
+            fig_sector.update_layout(height=400, width=600)
+            st.plotly_chart(fig_sector)
+
+        st.subheader("Company Description")
+        st.write(stock_info['longBusinessSummary'])
+
     else:
         st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
 
