@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 
 def get_stock_data(symbol, period="1mo"):
-    """
-    Fetch stock data for a given symbol and time period.
-    """
+    if period == "1w":
+        period = "7d"
     try:
         stock = yf.Ticker(symbol)
         data = stock.history(period=period)
@@ -68,6 +67,8 @@ def get_advanced_stock_data(symbol, period="1mo"):
     """
     Get stock data with advanced indicators.
     """
+    if period == "1w":
+        period = "7d"
     data = get_stock_data(symbol, period)
     if data is not None:
         data['MACD'] = calculate_macd(data)['MACD']
