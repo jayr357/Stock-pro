@@ -64,7 +64,7 @@ def calculate_bollinger_bands(data, window=20):
     rolling_std = data['Close'].rolling(window=window).std()
     upper_band = rolling_mean + (rolling_std * 2)
     lower_band = rolling_mean - (rolling_std * 2)
-    return pd.DataFrame({'Middle Band': rolling_mean, 'Upper Band': upper_band, 'Lower Band': lower_band})
+    return pd.DataFrame({'BB_Middle': rolling_mean, 'BB_Upper': upper_band, 'BB_Lower': lower_band})
 
 def get_advanced_stock_data(symbol, period="1mo"):
     """
@@ -75,7 +75,12 @@ def get_advanced_stock_data(symbol, period="1mo"):
         data['MACD'] = calculate_macd(data)['MACD']
         data['RSI'] = calculate_rsi(data)
         bb = calculate_bollinger_bands(data)
-        data['BB_Upper'] = bb['Upper Band']
-        data['BB_Middle'] = bb['Middle Band']
-        data['BB_Lower'] = bb['Lower Band']
+        data['BB_Upper'] = bb['BB_Upper']
+        data['BB_Middle'] = bb['BB_Middle']
+        data['BB_Lower'] = bb['BB_Lower']
+        
+        print("Bollinger Bands calculation output:")
+        print(bb.head())
+        print("\nFinal data columns:")
+        print(data.columns)
     return data
