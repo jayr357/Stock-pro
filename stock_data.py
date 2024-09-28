@@ -21,7 +21,7 @@ def get_stock_info(symbol):
         stock = yf.Ticker(symbol)
         info = stock.info
         return {
-            'marketCap': info.get('marketCap', 'N/A'),
+            'marketCap': float(info.get('marketCap', 0)),
             'trailingPE': info.get('trailingPE', 'N/A'),
             'trailingEps': info.get('trailingEps', 'N/A'),
             'dividendYield': info.get('dividendYield', 'N/A')

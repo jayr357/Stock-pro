@@ -25,10 +25,10 @@ if stock_symbol:
         # Display financial metrics
         st.subheader("Financial Metrics")
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Market Cap", f"${stock_info['marketCap']:,.0f}")
-        col2.metric("P/E Ratio", f"{stock_info['trailingPE']:.2f}")
-        col3.metric("EPS", f"${stock_info['trailingEps']:.2f}")
-        col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if stock_info['dividendYield'] else "N/A")
+        col1.metric("Market Cap", f"${stock_info['marketCap']:,.0f}" if isinstance(stock_info['marketCap'], (int, float)) else "N/A")
+        col2.metric("P/E Ratio", f"{stock_info['trailingPE']:.2f}" if isinstance(stock_info['trailingPE'], (int, float)) else "N/A")
+        col3.metric("EPS", f"${stock_info['trailingEps']:.2f}" if isinstance(stock_info['trailingEps'], (int, float)) else "N/A")
+        col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
         # Stock price chart
         st.subheader("Stock Price Chart")
