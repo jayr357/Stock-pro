@@ -33,7 +33,7 @@ if stock_symbol:
 
         # Stock price chart with advanced indicators
         st.subheader("Stock Price Chart with Advanced Indicators")
-        time_period = st.selectbox("Select time period", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
+        time_period = st.selectbox("Select time period", ["1w", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
         chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
         
         fig = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.2, 0.15, 0.15])
