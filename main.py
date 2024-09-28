@@ -222,18 +222,37 @@ with tab2:
             if stock_info:
                 col1, col2, col3 = st.columns([3, 2, 1])
                 col1.subheader(f"{stock} - {stock_info['longName']}")
-                col2.metric("Price", f"${stock_info['currentPrice']:.2f}", f"{stock_info['percentChange']:.2f}%")
+                
+                # Updated price and percent change display
+                current_price = stock_info.get('currentPrice', 'N/A')
+                percent_change = stock_info.get('percentChange', 'N/A')
+                
+                price_display = f"${current_price:.2f}" if isinstance(current_price, (int, float)) else str(current_price)
+                change_display = f"{percent_change:.2f}%" if isinstance(percent_change, (int, float)) else str(percent_change)
+                
+                col2.metric("Price", price_display, change_display)
+                
                 if col3.button("Remove", key=f"remove_{stock}"):
                     remove_stock_from_db(stock)
                     st.success(f"Removed {stock} from your watchlist!")
                     st.rerun()
                 
-                # Additional stock information
-                st.write(f"Sector: {stock_info['sector']}")
-                st.write(f"Industry: {stock_info['industry']}")
-                st.write(f"Market Cap: ${stock_info['marketCap']:,.0f}")
-                st.write(f"52 Week High: ${stock_info.get('fiftyTwoWeekHigh', 'N/A')}")
-                st.write(f"52 Week Low: ${stock_info.get('fiftyTwoWeekLow', 'N/A')}")
+                # Additional stock information with error handling
+                st.write(f"Sector: {stock_info.get('sector', 'N/A')}")
+                st.write(f"Industry: {stock_info.get('industry', 'N/A')}")
+                
+                market_cap = stock_info.get('marketCap', 'N/A')
+                market_cap_display = f"${market_cap:,.0f}" if isinstance(market_cap, (int, float)) else str(market_cap)
+                st.write(f"Market Cap: {market_cap_display}")
+                
+                fifty_two_week_high = stock_info.get('fiftyTwoWeekHigh', 'N/A')
+                fifty_two_week_high_display = f"${fifty_two_week_high:.2f}" if isinstance(fifty_two_week_high, (int, float)) else str(fifty_two_week_high)
+                st.write(f"52 Week High: {fifty_two_week_high_display}")
+                
+                fifty_two_week_low = stock_info.get('fiftyTwoWeekLow', 'N/A')
+                fifty_two_week_low_display = f"${fifty_two_week_low:.2f}" if isinstance(fifty_two_week_low, (int, float)) else str(fifty_two_week_low)
+                st.write(f"52 Week Low: {fifty_two_week_low_display}")
+                
                 st.write("---")
     else:
         st.write("Your watchlist is empty. Add stocks to track them.")
