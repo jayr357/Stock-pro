@@ -3,8 +3,11 @@ import pandas as pd
 import numpy as np
 
 def get_stock_data(symbol, period="1mo"):
-    if period == "1w":
-        period = "7d"
+    if period == "7d":
+        # Use '5d' and fetch a bit more data to cover 7 days
+        data = yf.Ticker(symbol).history(period="8d")
+        # Keep only the last 7 days of data
+        return data.tail(7)
     try:
         stock = yf.Ticker(symbol)
         data = stock.history(period=period)
@@ -67,10 +70,8 @@ def get_advanced_stock_data(symbol, period="1mo"):
     """
     Get stock data with advanced indicators.
     """
-    if period == "1w":
-        period = "7d"
     data = get_stock_data(symbol, period)
-    if data is not None:
+    if data is not None and not data.empty:
         data['MACD'] = calculate_macd(data)['MACD']
         data['RSI'] = calculate_rsi(data)
         bollinger_bands = calculate_bollinger_bands(data)
