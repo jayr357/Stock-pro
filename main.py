@@ -6,6 +6,8 @@ from stock_data import get_advanced_stock_data, get_stock_info
 from news_scraper import get_news_articles
 from database import initialize_db, save_stock_to_db, get_user_stocks, remove_stock_from_db
 from utils import convert_to_csv
+from economic_data import get_economic_indicators, get_relevant_economic_indicators
+from sentiment_analysis import analyze_news_sentiment
 
 # Initialize the database
 initialize_db()
@@ -15,7 +17,7 @@ st.set_page_config(page_title="Stock Data Visualization", page_icon="assets/favi
 st.title("Stock Data Retrieval and Visualization Tool")
 
 # Create tabs for different sections
-tab1, tab2 = st.tabs(["Stock Analysis", "Watchlist"])
+tab1, tab2, tab3 = st.tabs(["Stock Analysis", "Economic Indicators", "Watchlist"])
 
 with tab1:
     # User input for stock symbol
@@ -149,15 +151,20 @@ with tab1:
                 save_stock_to_db(stock_symbol)
                 st.success(f"Added {stock_symbol} to your watchlist!")
 
-            # Display news articles
-            st.subheader("Recent News Articles")
+            # Display news articles with sentiment analysis
+            st.subheader("Recent News Articles with Sentiment Analysis")
             news_articles = get_news_articles(stock_symbol)
-            for article in news_articles[:5]:  # Display top 5 articles
+            news_articles_with_sentiment = analyze_news_sentiment(news_articles)
+            for article in news_articles_with_sentiment[:5]:  # Display top 5 articles
                 st.markdown(f"[{article['title']}]({article['url']})")
                 st.write(article['description'])
+                if 'sentiment' in article:
+                    sentiment = article['sentiment']
+                    st.write(f"Sentiment: Positive: {sentiment['pos']:.2f}, Negative: {sentiment['neg']:.2f}, Neutral: {sentiment['neu']:.2f}")
+                    st.progress(sentiment['compound'] + 1, text="Sentiment Score")
                 st.write("---")
 
-            # Company Overview and Description (moved to the end)
+            # Company Overview and Description
             st.subheader("Company Overview")
             col1, col2 = st.columns(2)
 
@@ -203,6 +210,36 @@ with tab1:
             st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
 
 with tab2:
+    st.header("Economic Indicators")
+    
+    # Get relevant economic indicators
+    indicators = get_relevant_economic_indicators(stock_symbol)
+    
+    # Fetch economic indicator data
+    indicator_data = get_economic_indicators(indicators)
+    
+    # Display economic indicators
+    for indicator, data in indicator_data.items():
+        st.subheader(f"{indicator} - {fred.get_series_info(indicator).title}")
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=data.index, y=data.values, mode='lines', name=indicator))
+        fig.update_layout(
+            height=400,
+            title=f"{indicator} Over Time",
+            xaxis_title="Date",
+            yaxis_title="Value",
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font_color='#FFFFFF',
+            title_font_color='#FFFFFF',
+            legend_title_font_color='#FFFFFF',
+            legend_font_color='#FFFFFF',
+            xaxis=dict(linecolor='#FF00FF', gridcolor='#333333'),
+            yaxis=dict(linecolor='#FF00FF', gridcolor='#333333')
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+with tab3:
     st.header("Your Watchlist")
     
     # Add multiple stocks to watchlist
@@ -259,7 +296,7 @@ with tab2:
 
 # Add some information about the app
 st.sidebar.title("About")
-st.sidebar.info("This app allows you to retrieve and visualize stock data, track stocks, and view related news articles. It includes advanced financial indicators such as MACD, RSI, Bollinger Bands, Moving Averages, Fibonacci Retracement, and SMA Crossover.")
+st.sidebar.info("This app allows you to retrieve and visualize stock data, track stocks, view related news articles with sentiment analysis, and analyze economic indicators. It includes advanced financial indicators such as MACD, RSI, Bollinger Bands, Moving Averages, Fibonacci Retracement, and SMA Crossover.")
 
 # Explanation of indicators
 st.sidebar.title("Indicator Explanations")
@@ -277,4 +314,8 @@ st.sidebar.markdown("""
 **SMA Crossover:** This occurs when a shorter-term SMA (e.g., 50-day) crosses above or below a longer-term SMA (e.g., 200-day). A "golden cross" occurs when the shorter-term SMA crosses above the longer-term SMA, often considered a bullish signal. A "death cross" occurs when the shorter-term SMA crosses below the longer-term SMA, often considered a bearish signal.
 
 **Correlation Matrix:** This heatmap shows the correlation between different indicators and the stock price. It helps in understanding how different metrics relate to each other and the overall stock performance.
+
+**Sentiment Analysis:** This analyzes the sentiment of news articles related to the stock, providing insights into the overall market sentiment. The sentiment score ranges from -1 (very negative) to 1 (very positive).
+
+**Economic Indicators:** These provide context for the broader economic conditions that may impact stock performance. Common indicators include Consumer Price Index (CPI), Unemployment Rate, and Gross Domestic Product (GDP).
 """)
