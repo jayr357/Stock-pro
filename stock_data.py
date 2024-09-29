@@ -108,18 +108,29 @@ def get_advanced_stock_data(symbol, period="1mo"):
             print(f"No data available for {symbol} in the specified period.")
             return None
         
+        # Convert relevant columns to numeric type
+        numeric_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+        for col in numeric_columns:
+            data[col] = pd.to_numeric(data[col], errors='coerce')
+        
         # Calculate advanced indicators
-        data['MACD'], data['Signal'], data['Histogram'] = calculate_macd(data).T.values
-        data['RSI'] = calculate_rsi(data)
+        macd_data = calculate_macd(data)
+        data['MACD'] = macd_data['MACD'].astype(float)
+        data['Signal'] = macd_data['Signal'].astype(float)
+        data['Histogram'] = macd_data['Histogram'].astype(float)
+        data['RSI'] = calculate_rsi(data).astype(float)
+        
         bb_data = calculate_bollinger_bands(data)
-        data['BB_Upper'] = bb_data['BB_Upper']
-        data['BB_Middle'] = bb_data['BB_Middle']
-        data['BB_Lower'] = bb_data['BB_Lower']
+        data['BB_Upper'] = bb_data['BB_Upper'].astype(float)
+        data['BB_Middle'] = bb_data['BB_Middle'].astype(float)
+        data['BB_Lower'] = bb_data['BB_Lower'].astype(float)
+        
         fib_data = calculate_fibonacci_retracement(data)
         for col in fib_data.columns:
-            data[col] = fib_data[col]
-        data['SMA_50'] = calculate_sma(data, 50)
-        data['SMA_200'] = calculate_sma(data, 200)
+            data[col] = fib_data[col].astype(float)
+        
+        data['SMA_50'] = calculate_sma(data, 50).astype(float)
+        data['SMA_200'] = calculate_sma(data, 200).astype(float)
         data['SMA_Crossover'] = detect_sma_crossover(data)
         
         return data
