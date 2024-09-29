@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 
 def get_stock_data(symbol, period="1mo"):
     try:
@@ -93,36 +94,35 @@ def detect_sma_crossover(data):
     return crossover_points
 
 def get_advanced_stock_data(symbol, period="1mo"):
-    data = get_stock_data(symbol, period)
-    if data is None:
-        return None
-    if not data.empty:
-        try:
-            macd_data = calculate_macd(data)
-            data['MACD'] = macd_data['MACD']
-            data['Signal'] = macd_data['Signal']
-            data['Histogram'] = macd_data['Histogram']
-            
-            data['RSI'] = calculate_rsi(data)
-            
-            bb_data = calculate_bollinger_bands(data)
-            data['BB_Upper'] = bb_data['BB_Upper']
-            data['BB_Middle'] = bb_data['BB_Middle']
-            data['BB_Lower'] = bb_data['BB_Lower']
-            
-            fib_data = calculate_fibonacci_retracement(data)
-            for col in fib_data.columns:
-                data[col] = fib_data[col]
-            
-            data['SMA_50'] = calculate_sma(data, 50)
-            data['SMA_200'] = calculate_sma(data, 200)
-            
-            data['SMA_Crossover'] = detect_sma_crossover(data)
-            
-            return data
-        except Exception as e:
-            print(f"Error calculating advanced indicators: {e}")
-            return data
-    else:
-        print("Error: No data available for the given symbol and period")
+    try:
+        stock = yf.Ticker(symbol)
+        
+        if period == "1w":
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=7)
+            data = stock.history(start=start_date, end=end_date)
+        else:
+            data = stock.history(period=period)
+        
+        if data.empty:
+            print(f"No data available for {symbol} in the specified period.")
+            return None
+        
+        # Calculate advanced indicators
+        data['MACD'], data['Signal'], data['Histogram'] = calculate_macd(data).T.values
+        data['RSI'] = calculate_rsi(data)
+        bb_data = calculate_bollinger_bands(data)
+        data['BB_Upper'] = bb_data['BB_Upper']
+        data['BB_Middle'] = bb_data['BB_Middle']
+        data['BB_Lower'] = bb_data['BB_Lower']
+        fib_data = calculate_fibonacci_retracement(data)
+        for col in fib_data.columns:
+            data[col] = fib_data[col]
+        data['SMA_50'] = calculate_sma(data, 50)
+        data['SMA_200'] = calculate_sma(data, 200)
+        data['SMA_Crossover'] = detect_sma_crossover(data)
+        
+        return data
+    except Exception as e:
+        print(f"Error calculating advanced indicators: {e}")
         return None

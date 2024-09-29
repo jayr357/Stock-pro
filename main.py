@@ -8,6 +8,7 @@ from database import initialize_db, save_stock_to_db, get_user_stocks, remove_st
 from utils import convert_to_csv
 from economic_data import get_economic_indicators, get_relevant_economic_indicators
 from sentiment_analysis import analyze_news_sentiment
+from fredapi import Fred
 
 # Initialize the database
 initialize_db()
@@ -42,7 +43,7 @@ with tab1:
 
             # Stock price chart with advanced indicators
             st.subheader("Stock Price Chart with Advanced Indicators")
-            time_period = st.selectbox("Select time period", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
+            time_period = st.selectbox("Select time period", ["1w", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"])
             chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
             
             if chart_data is None or chart_data.empty:
@@ -217,6 +218,9 @@ with tab2:
     
     # Fetch economic indicator data
     indicator_data = get_economic_indicators(indicators)
+    
+    # Initialize FRED API client
+    fred = Fred(api_key=st.secrets["FRED_API_KEY"])
     
     # Display economic indicators
     for indicator, data in indicator_data.items():
