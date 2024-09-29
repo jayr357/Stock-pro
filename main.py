@@ -62,65 +62,84 @@ with tab1:
                     for col in fib_columns:
                         chart_data[col] = pd.to_numeric(chart_data[col], errors='coerce')
 
-                    fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
+                    try:
+                        fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
 
-                    # Candlestick chart
-                    fig.add_trace(go.Candlestick(
-                        x=chart_data.index,
-                        open=chart_data['Open'],
-                        high=chart_data['High'],
-                        low=chart_data['Low'],
-                        close=chart_data['Close'],
-                        name="Price"
-                    ), row=1, col=1)
+                        # Candlestick chart
+                        fig.add_trace(go.Candlestick(
+                            x=chart_data.index,
+                            open=chart_data['Open'],
+                            high=chart_data['High'],
+                            low=chart_data['Low'],
+                            close=chart_data['Close'],
+                            name="Price"
+                        ), row=1, col=1)
 
-                    # Bollinger Bands
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Upper'], name="BB Upper", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Middle'], name="BB Middle", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['BB_Lower'], name="BB Lower", line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
+                        # Bollinger Bands
+                        for bb in ['BB_Upper', 'BB_Middle', 'BB_Lower']:
+                            if not chart_data[bb].empty:
+                                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[bb], name=bb, line=dict(color="rgba(173, 204, 255, 0.7)", width=1)), row=1, col=1)
 
-                    # Fibonacci Retracement
-                    fib_colors = ['rgba(128, 0, 128, 0.3)', 'rgba(0, 0, 255, 0.3)', 'rgba(0, 128, 0, 0.3)', 'rgba(255, 165, 0, 0.3)', 'rgba(255, 0, 0, 0.3)']
-                    for i, level in enumerate([0.236, 0.382, 0.5, 0.618, 1]):
-                        fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[f'Fib_{int(level*100)}'], name=f"Fib {level}", line=dict(color=fib_colors[i], width=1, dash='dash')), row=1, col=1)
+                        # Fibonacci Retracement
+                        fib_colors = ['rgba(128, 0, 128, 0.3)', 'rgba(0, 0, 255, 0.3)', 'rgba(0, 128, 0, 0.3)', 'rgba(255, 165, 0, 0.3)', 'rgba(255, 0, 0, 0.3)']
+                        for i, level in enumerate([0, 24, 38, 50, 62, 100]):
+                            fib_col = f'Fib_{level}'
+                            if fib_col in chart_data.columns and not chart_data[fib_col].empty:
+                                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[fib_col], name=f"Fib {level/100}", line=dict(color=fib_colors[i % len(fib_colors)], width=1, dash='dash')), row=1, col=1)
 
-                    # SMA
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_50'], name="50-day SMA", line=dict(color="#00FFFF", width=1)), row=1, col=1)
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['SMA_200'], name="200-day SMA", line=dict(color="#FF1493", width=1)), row=1, col=1)
+                        # SMA
+                        for sma in ['SMA_50', 'SMA_200']:
+                            if not chart_data[sma].empty:
+                                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[sma], name=f"{sma.split('_')[1]}-day SMA", line=dict(color="#00FFFF" if sma == 'SMA_50' else "#FF1493", width=1)), row=1, col=1)
 
-                    # SMA Crossover
-                    crossover_points = chart_data[chart_data['SMA_Crossover']]
-                    fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=15, color='#FFFF00', line=dict(width=2, color='#000000'))), row=1, col=1)
+                        # SMA Crossover
+                        if 'SMA_Crossover' in chart_data.columns:
+                            crossover_points = chart_data[chart_data['SMA_Crossover']]
+                            if not crossover_points.empty:
+                                fig.add_trace(go.Scatter(x=crossover_points.index, y=crossover_points['Close'], mode='markers', name="SMA Crossover", marker=dict(symbol='star', size=15, color='#FFFF00', line=dict(width=2, color='#000000'))), row=1, col=1)
 
-                    # Volume
-                    fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume", marker_color='#00CED1'), row=2, col=1)
+                        # Volume
+                        if not chart_data['Volume'].empty:
+                            fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Volume'], name="Volume", marker_color='#00CED1'), row=2, col=1)
 
-                    # MACD
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['MACD'], name="MACD", line=dict(color="#00FA9A")), row=3, col=1)
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['Signal'], name="Signal", line=dict(color="#FF69B4")), row=3, col=1)
-                    fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Histogram'], name="Histogram", marker_color='#1E90FF'), row=3, col=1)
+                        # MACD
+                        for macd_col in ['MACD', 'Signal']:
+                            if not chart_data[macd_col].empty:
+                                fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data[macd_col], name=macd_col, line=dict(color="#00FA9A" if macd_col == 'MACD' else "#FF69B4")), row=3, col=1)
+                        if not chart_data['Histogram'].empty:
+                            fig.add_trace(go.Bar(x=chart_data.index, y=chart_data['Histogram'], name="Histogram", marker_color='#1E90FF'), row=3, col=1)
 
-                    # RSI
-                    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI", line=dict(color="#FFA500")), row=4, col=1)
-                    fig.add_hline(y=70, line_dash="dash", line_color="#FF0000", row="4", col="1")
-                    fig.add_hline(y=30, line_dash="dash", line_color="#00FF00", row="4", col="1")
+                        # RSI
+                        if not chart_data['RSI'].empty:
+                            fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data['RSI'], name="RSI", line=dict(color="#FFA500")), row=4, col=1)
+                            fig.add_hline(y=70, line_dash="dash", line_color="#FF0000", row=4, col=1)
+                            fig.add_hline(y=30, line_dash="dash", line_color="#00FF00", row=4, col=1)
 
-                    fig.update_layout(
-                        height=1200,
-                        title=f"{stock_symbol} Stock Price and Indicators",
-                        xaxis_title="Date",
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        font_color='#FFFFFF',
-                        title_font_color='#FFFFFF',
-                        legend_title_font_color='#FFFFFF',
-                        legend_font_color='#FFFFFF',
-                        xaxis=dict(linecolor='#FF00FF', gridcolor='#333333'),
-                        yaxis=dict(linecolor='#FF00FF', gridcolor='#333333')
-                    )
+                        fig.update_layout(
+                            height=1200,
+                            title=f"{stock_symbol} Stock Price and Indicators",
+                            xaxis_title="Date",
+                            plot_bgcolor='rgba(0,0,0,0)',
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            font_color='#FFFFFF',
+                            title_font_color='#FFFFFF',
+                            legend_title_font_color='#FFFFFF',
+                            legend_font_color='#FFFFFF',
+                            xaxis=dict(linecolor='#FF00FF', gridcolor='#333333'),
+                            yaxis=dict(linecolor='#FF00FF', gridcolor='#333333')
+                        )
 
-                    fig.update_xaxes(rangeslider_visible=False)
-                    st.plotly_chart(fig, use_container_width=True)
+                        fig.update_xaxes(rangeslider_visible=False)
+                        st.plotly_chart(fig, use_container_width=True)
+                    except Exception as chart_error:
+                        st.error(f"Error creating chart: {str(chart_error)}")
+                        print(f"Debug: Error creating chart: {str(chart_error)}")
+                        print("Debug: chart_data shape:", chart_data.shape)
+                        print("Debug: chart_data columns:", chart_data.columns)
+                        print("Debug: chart_data info:")
+                        print(chart_data.info())
+                        print("Debug: chart_data description:")
+                        print(chart_data.describe())
 
                     # Display correlation matrix
                     st.subheader("Correlation Matrix")
@@ -133,8 +152,8 @@ with tab1:
                     st.plotly_chart(fig_corr)
 
                 except Exception as e:
-                    st.error(f"Error creating chart: {str(e)}")
-                    print(f"Debug: Error creating chart: {str(e)}")
+                    st.error(f"Error processing data: {str(e)}")
+                    print(f"Debug: Error processing data: {str(e)}")
                     print("Debug: chart_data columns:", chart_data.columns)
                     print("Debug: First few rows of chart_data:")
                     print(chart_data.head())
