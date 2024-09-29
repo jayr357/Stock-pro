@@ -1,9 +1,9 @@
-import os
+import streamlit as st
 from fredapi import Fred
 from datetime import datetime, timedelta
 
 # Initialize FRED API client
-fred = Fred(api_key=os.environ['FRED_API_KEY'])
+fred = Fred(api_key=st.secrets["FRED_API_KEY"])
 
 def get_economic_indicators(indicators, start_date=None, end_date=None):
     """

@@ -97,10 +97,10 @@ def get_advanced_stock_data(symbol, period="1mo"):
     try:
         stock = yf.Ticker(symbol)
         
+        end_date = datetime.now()
         if period == "1w":
-            end_date = datetime.now()
             start_date = end_date - timedelta(days=7)
-            data = stock.history(start=start_date, end=end_date)
+            data = stock.history(start=start_date, end=end_date, interval="1h")
         else:
             data = stock.history(period=period)
         
