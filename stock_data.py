@@ -109,8 +109,17 @@ def get_advanced_stock_data(symbol, period="1mo"):
                 start_date = end_date - timedelta(days=730)
             data = stock.history(start=start_date, end=end_date, interval=period)
         elif period == "1w":
-            start_date = end_date - timedelta(days=7)
+            start_date = end_date - timedelta(weeks=1)
             data = stock.history(start=start_date, end=end_date, interval="1h")
+        elif period == "1mo":
+            start_date = end_date - timedelta(days=30)
+            data = stock.history(start=start_date, end=end_date, interval="1d")
+        elif period == "3mo":
+            start_date = end_date - timedelta(days=90)
+            data = stock.history(start=start_date, end=end_date, interval="1d")
+        elif period == "1y":
+            start_date = end_date - timedelta(days=365)
+            data = stock.history(start=start_date, end=end_date, interval="1d")
         else:
             data = stock.history(period=period)
         
