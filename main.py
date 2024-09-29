@@ -221,7 +221,7 @@ with tab2:
     indicator_data = get_economic_indicators(indicators)
     
     # Initialize FRED API client
-    fred = Fred(api_key=os.environ.get('FRED_API_KEY'))
+    fred = Fred(api_key=st.secrets["FRED_API_KEY"])
     
     # Display economic indicators
     for indicator, data in indicator_data.items():
