@@ -10,6 +10,7 @@ from utils import convert_to_csv
 from economic_data import get_economic_indicators, get_relevant_economic_indicators
 from sentiment_analysis import analyze_news_sentiment
 from fredapi import Fred
+import random
 
 # Initialize the database
 initialize_db()
@@ -23,7 +24,7 @@ tab1, tab2, tab3 = st.tabs(["Stock Analysis", "Economic Indicators", "Watchlist"
 
 with tab1:
     # User input for stock symbol
-    stock_symbol = st.text_input("Enter a stock symbol (e.g., AAPL):", value="AAPL").upper()
+    stock_symbol = st.text_input("Enter a stock symbol:", value=random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB'])).upper()
 
     if stock_symbol:
         # Fetch stock data
@@ -221,7 +222,7 @@ with tab2:
     indicator_data = get_economic_indicators(indicators)
     
     # Initialize FRED API client
-    fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+    fred = Fred(api_key=os.environ['FRED_API_KEY'])
     
     # Display economic indicators
     for indicator, data in indicator_data.items():
@@ -248,7 +249,7 @@ with tab3:
     st.header("Your Watchlist")
     
     # Add multiple stocks to watchlist
-    new_stocks = st.text_input("Add multiple stocks (comma-separated)", "")
+    new_stocks = st.text_input("Add multiple stocks (comma-separated)", "e.g., TSLA, NVDA, JPM, DIS, NFLX")
     if st.button("Add Stocks"):
         new_stock_list = [stock.strip().upper() for stock in new_stocks.split(',') if stock.strip()]
         for new_stock in new_stock_list:

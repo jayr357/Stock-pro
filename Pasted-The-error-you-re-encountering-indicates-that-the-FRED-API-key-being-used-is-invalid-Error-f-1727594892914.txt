@@ -1,0 +1,156 @@
+The error you're encountering indicates that the FRED API key being used is invalid:
+
+```
+Error fetching : Bad Request. variable api_key is not a 32 character alpha-numeric lower-case string.
+```
+
+This happens because the `api_key` variable you're passing to the `Fred` class is either `None` or not the correct 32-character string required by the FRED API.
+
+### **What's Happening?**
+
+- **Invalid API Key**: The `os.environ.get('FRED_API_KEY')` call is returning `None` because the `FRED_API_KEY` environment variable is not set.
+- **Initialization of `Fred` Instances**: In both `main.py` and `economic_data.py`, you're initializing the `Fred` client using `os.environ.get('FRED_API_KEY')`, which results in an invalid or `None` API key.
+
+### **Solution**
+
+To resolve this issue, you need to ensure that the correct FRED API key is being used wherever you initialize a `Fred` instance.
+
+#### **Option 1: Use `st.secrets` in Both Modules**
+
+Since you're already using `st.secrets["FRED_API_KEY"]` in `main.py`, you can do the same in `economic_data.py` by importing Streamlit.
+
+**In `economic_data.py`:**
+
+1. **Import Streamlit:**
+
+   ```python
+   import streamlit as st
+   ```
+
+2. **Initialize the `Fred` Client Using `st.secrets`:**
+
+   ```python
+   # Initialize FRED API client
+   fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+   ```
+
+**Updated `economic_data.py`:**
+
+```python
+import streamlit as st
+from fredapi import Fred
+from datetime import datetime, timedelta
+
+# Initialize FRED API client
+fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+
+def get_economic_indicators(indicators, start_date=None, end_date=None):
+    # Rest of your code
+    pass
+
+def get_relevant_economic_indicators(stock_symbol):
+    # Rest of your code
+    pass
+```
+
+#### **Option 2: Pass the `Fred` Instance as a Parameter**
+
+Alternatively, you can initialize the `Fred` client in `main.py` and pass it to the functions in `economic_data.py`.
+
+**Step-by-Step Guide:**
+
+1. **Remove `Fred` Initialization from `economic_data.py`:**
+
+   ```python
+   # Remove this line
+   fred = Fred(api_key=os.environ.get('FRED_API_KEY'))
+   ```
+
+2. **Modify Functions to Accept `fred` as a Parameter:**
+
+   ```python
+   def get_economic_indicators(indicators, fred, start_date=None, end_date=None):
+       # Use fred inside this function
+       pass
+   ```
+
+3. **In `main.py`, Initialize `fred` Using `st.secrets`:**
+
+   ```python
+   fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+   ```
+
+4. **Pass `fred` to Functions in `economic_data.py`:**
+
+   ```python
+   indicator_data = get_economic_indicators(indicators, fred)
+   ```
+
+5. **Use `fred` in the Loop for Displaying Indicators:**
+
+   ```python
+   for indicator, data in indicator_data.items():
+       st.subheader(f"{indicator} - {fred.get_series_info(indicator).title}")
+       # Rest of your code
+   ```
+
+**Updated `economic_data.py`:**
+
+```python
+def get_economic_indicators(indicators, fred, start_date=None, end_date=None):
+    if start_date is None:
+        start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+    if end_date is None:
+        end_date = datetime.now().strftime('%Y-%m-%d')
+    
+    indicator_data = {}
+    for indicator in indicators:
+        try:
+            data = fred.get_series(indicator, start_date, end_date)
+            indicator_data[indicator] = data
+        except Exception as e:
+            print(f"Error fetching {indicator}: {str(e)}")
+    
+    return indicator_data
+```
+
+**Updated `main.py`:**
+
+```python
+# Initialize FRED API client
+fred = Fred(api_key=st.secrets["FRED_API_KEY"])
+
+# Fetch economic indicator data
+indicator_data = get_economic_indicators(indicators, fred)
+
+# Display economic indicators
+for indicator, data in indicator_data.items():
+    st.subheader(f"{indicator} - {fred.get_series_info(indicator).title}")
+    # Rest of your code
+```
+
+### **Explanation**
+
+- **Why `os.environ.get('FRED_API_KEY')` Fails**: Environment variables are not automatically set from `secrets.toml`. Using `os.environ.get('FRED_API_KEY')` will return `None` unless you have explicitly set the environment variable in your system or application environment.
+- **Using `st.secrets`**: The `st.secrets` object securely stores your API keys and secrets. By using `st.secrets["FRED_API_KEY"]`, you ensure that the correct API key is retrieved.
+
+### **Additional Considerations**
+
+- **Importing Streamlit in `economic_data.py`**: If you choose Option 1, importing Streamlit in modules other than your main script is acceptable, but be cautious of potential side effects or increased memory usage.
+- **Passing Objects Between Modules**: Option 2 follows good programming practices by avoiding global variables and making dependencies explicit through function parameters.
+- **Security**: Ensure that your `secrets.toml` file is not committed to version control and is properly secured.
+
+### **Verification**
+
+After making these changes, you can verify that the API key is correctly passed by adding a debug statement (be careful not to expose sensitive information in production):
+
+```python
+# For debugging purposes only
+print(f"Debug: FRED_API_KEY is {st.secrets['FRED_API_KEY']}")
+```
+
+### **Final Remarks**
+
+By ensuring that the correct FRED API key is used wherever the `Fred` client is initialized, you should resolve the "Bad Request" error due to an invalid API key.
+
+**Let me know if you need further assistance or if any other issues arise!**
