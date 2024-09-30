@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from stock_data import get_advanced_stock_data, get_stock_info
+from stock_data import get_advanced_stock_data, get_stock_info, InvalidStockSymbolError
 from news_scraper import get_news_articles
 from database import initialize_db, save_stock_to_db, get_user_stocks, remove_stock_from_db
 from utils import convert_to_csv
@@ -12,6 +12,10 @@ from fredapi import Fred
 import random
 import socket
 import traceback
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize the database
 initialize_db()
@@ -28,20 +32,20 @@ with tab1:
     default_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META']
     stock_symbol = st.text_input("Enter a stock symbol:", value="").upper()
     
-    print(f"Debug: Initial stock_symbol input: {stock_symbol}")
+    logging.info(f"Initial stock_symbol input: {stock_symbol}")
     
     if not stock_symbol:
         stock_symbol = random.choice(default_stocks)
-        print(f"Debug: Randomly selected stock_symbol: {stock_symbol}")
+        logging.info(f"Randomly selected stock_symbol: {stock_symbol}")
     
     if stock_symbol:
         try:
-            print(f"Debug: Fetching data for stock_symbol: {stock_symbol}")
+            logging.info(f"Fetching data for stock_symbol: {stock_symbol}")
             # Fetch stock data
             stock_data = get_advanced_stock_data(stock_symbol)
             stock_info = get_stock_info(stock_symbol)
             
-            print(f"Debug: Data fetched for stock_symbol: {stock_symbol}")
+            logging.info(f"Data fetched for stock_symbol: {stock_symbol}")
 
             if stock_data is not None and stock_info is not None:
                 # Display stock name and symbol
@@ -60,7 +64,7 @@ with tab1:
                 time_period = st.selectbox("Select time period", ["1m", "5m", "15m", "1h", "1d", "1w", "1mo", "3mo"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
-                print(f"Debug: Chart data fetched for stock_symbol: {stock_symbol}, period: {time_period}")
+                logging.info(f"Chart data fetched for stock_symbol: {stock_symbol}, period: {time_period}")
                 
                 if chart_data is None or chart_data.empty:
                     st.error(f"Unable to fetch data for {stock_symbol} for the selected time period. Please try a different time period or stock symbol.")
@@ -148,13 +152,11 @@ with tab1:
                             st.plotly_chart(fig, use_container_width=True)
                         except Exception as chart_error:
                             st.error(f"Error creating chart: {str(chart_error)}")
-                            print(f"Debug: Error creating chart: {str(chart_error)}")
-                            print("Debug: chart_data shape:", chart_data.shape)
-                            print("Debug: chart_data columns:", chart_data.columns)
-                            print("Debug: chart_data info:")
-                            print(chart_data.info())
-                            print("Debug: chart_data description:")
-                            print(chart_data.describe())
+                            logging.error(f"Error creating chart: {str(chart_error)}")
+                            logging.error("chart_data shape: %s", chart_data.shape)
+                            logging.error("chart_data columns: %s", chart_data.columns)
+                            logging.error("chart_data info: %s", chart_data.info())
+                            logging.error("chart_data description: %s", chart_data.describe())
 
                         # Display correlation matrix
                         st.subheader("Correlation Matrix")
@@ -168,10 +170,9 @@ with tab1:
 
                     except Exception as e:
                         st.error(f"Error processing data: {str(e)}")
-                        print(f"Debug: Error processing data: {str(e)}")
-                        print("Debug: chart_data columns:", chart_data.columns)
-                        print("Debug: First few rows of chart_data:")
-                        print(chart_data.head())
+                        logging.error(f"Error processing data: {str(e)}")
+                        logging.error("chart_data columns: %s", chart_data.columns)
+                        logging.error("First few rows of chart_data: %s", chart_data.head())
 
                 # Download CSV
                 csv = convert_to_csv(stock_data)
@@ -243,18 +244,18 @@ with tab1:
                 st.write(stock_info['longBusinessSummary'])
 
             else:
-                if stock_info is None:
-                    st.error(f"Invalid stock symbol: {stock_symbol}. Please enter a valid stock symbol.")
-                else:
-                    st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
+                st.error(f"Unable to fetch data for {stock_symbol}. Please check the stock symbol and try again.")
+        except InvalidStockSymbolError as ise:
+            st.error(str(ise))
+            logging.error(f"Invalid stock symbol: {stock_symbol}")
         except socket.error as se:
             st.error(f"Network error occurred: {str(se)}")
-            print(f"Debug: Socket error: {str(se)}")
-            print(f"Debug: Traceback: {traceback.format_exc()}")
+            logging.error(f"Socket error: {str(se)}")
+            logging.error(f"Traceback: {traceback.format_exc()}")
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
-            print(f"Debug: Unexpected error: {str(e)}")
-            print(f"Debug: Traceback: {traceback.format_exc()}")
+            logging.error(f"Unexpected error: {str(e)}")
+            logging.error(f"Traceback: {traceback.format_exc()}")
 
 with tab2:
     st.header("Economic Indicators")
@@ -291,12 +292,12 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
     except socket.error as se:
         st.error(f"Network error occurred while fetching economic indicators: {str(se)}")
-        print(f"Debug: Socket error in economic indicators: {str(se)}")
-        print(f"Debug: Traceback: {traceback.format_exc()}")
+        logging.error(f"Socket error in economic indicators: {str(se)}")
+        logging.error(f"Traceback: {traceback.format_exc()}")
     except Exception as e:
         st.error(f"An unexpected error occurred while fetching economic indicators: {str(e)}")
-        print(f"Debug: Unexpected error in economic indicators: {str(e)}")
-        print(f"Debug: Traceback: {traceback.format_exc()}")
+        logging.error(f"Unexpected error in economic indicators: {str(e)}")
+        logging.error(f"Traceback: {traceback.format_exc()}")
 
 with tab3:
     st.header("Your Watchlist")
