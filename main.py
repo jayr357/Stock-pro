@@ -138,17 +138,22 @@ with tab2:
 with tab3:
     st.header("Your Watchlist")
     
-    new_stocks = st.text_input("Add multiple stocks (comma-separated)", "e.g., TSLA, NVDA, JPM, DIS, NFLX")
+    new_stocks = st.text_input("Add multiple stocks (comma-separated)", key="new_stocks_input")
     if st.button("Add Stocks"):
         new_stock_list = [stock.strip().upper() for stock in new_stocks.split(',') if stock.strip()]
+        added_stocks = []
         for new_stock in new_stock_list:
             try:
                 # Verify if the stock symbol is valid before adding to the watchlist
                 get_stock_info(new_stock)
                 save_stock_to_db(new_stock)
-                st.success(f"Added {new_stock} to your watchlist!")
+                added_stocks.append(new_stock)
             except InvalidStockSymbolError:
                 st.error(f"Invalid stock symbol: {new_stock}. Not added to watchlist.")
+        
+        if added_stocks:
+            st.success(f"Added {', '.join(added_stocks)} to your watchlist!")
+            st.session_state.new_stocks_input = ""  # Clear the input field
         st.rerun()
 
     user_stocks = get_user_stocks()

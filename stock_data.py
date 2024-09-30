@@ -56,6 +56,12 @@ def get_advanced_stock_data(symbol, period="1mo"):
     
     try:
         stock = yf.Ticker(symbol)
+        info = stock.info
+        
+        # More robust check for valid stock symbols
+        if not info or 'symbol' not in info or 'shortName' not in info or symbol.upper() == 'E.G.':
+            raise InvalidStockSymbolError(f"Invalid or non-existent stock symbol: {symbol}")
+        
         data = stock.history(period=period)
         
         if data.empty:
