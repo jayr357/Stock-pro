@@ -25,13 +25,24 @@ tab1, tab2, tab3 = st.tabs(["Stock Analysis", "Economic Indicators", "Watchlist"
 
 with tab1:
     # User input for stock symbol
-    stock_symbol = st.text_input("Enter a stock symbol:", value=random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB'])).upper()
-
+    default_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META']
+    stock_symbol = st.text_input("Enter a stock symbol:", value="").upper()
+    
+    # Debug print
+    print(f"Debug: Initial stock_symbol input: {stock_symbol}")
+    
+    if not stock_symbol:
+        stock_symbol = random.choice(default_stocks)
+        print(f"Debug: Randomly selected stock_symbol: {stock_symbol}")
+    
     if stock_symbol:
         try:
+            print(f"Debug: Fetching data for stock_symbol: {stock_symbol}")
             # Fetch stock data
             stock_data = get_advanced_stock_data(stock_symbol)
             stock_info = get_stock_info(stock_symbol)
+            
+            print(f"Debug: Data fetched for stock_symbol: {stock_symbol}")
 
             if stock_data is not None and stock_info is not None:
                 # Display stock name and symbol
@@ -49,6 +60,8 @@ with tab1:
                 st.subheader("Stock Price Chart with Advanced Indicators")
                 time_period = st.selectbox("Select time period", ["1m", "15m", "1h", "4h", "1w", "1mo", "3mo", "1y"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
+                
+                print(f"Debug: Chart data fetched for stock_symbol: {stock_symbol}, period: {time_period}")
                 
                 if chart_data is None or chart_data.empty:
                     st.error(f"Unable to fetch data for {stock_symbol} for the selected time period. Please try a different time period or stock symbol.")
