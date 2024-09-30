@@ -58,7 +58,7 @@ with tab1:
 
                 # Stock price chart with advanced indicators
                 st.subheader("Stock Price Chart with Advanced Indicators")
-                time_period = st.selectbox("Select time period", ["1m", "15m", "1h", "4h", "1w", "1mo", "3mo", "1y"])
+                time_period = st.selectbox("Select time period", ["1m", "5m", "15m", "1h", "1d", "1w", "1mo", "3mo"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
                 print(f"Debug: Chart data fetched for stock_symbol: {stock_symbol}, period: {time_period}")

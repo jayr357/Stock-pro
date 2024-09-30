@@ -98,28 +98,28 @@ def get_advanced_stock_data(symbol, period="1mo"):
         stock = yf.Ticker(symbol)
         
         end_date = datetime.now()
-        if period in ["1m", "15m", "1h", "4h"]:
+        if period in ["1m", "5m", "15m", "1h"]:
             if period == "1m":
                 start_date = end_date - timedelta(days=7)
+            elif period == "5m":
+                start_date = end_date - timedelta(days=60)
             elif period == "15m":
                 start_date = end_date - timedelta(days=60)
             elif period == "1h":
                 start_date = end_date - timedelta(days=730)
-            elif period == "4h":
-                start_date = end_date - timedelta(days=730)
             data = stock.history(start=start_date, end=end_date, interval=period)
-        elif period == "1w":
-            start_date = end_date - timedelta(weeks=1)
-            data = stock.history(start=start_date, end=end_date, interval="1h")
-        elif period == "1mo":
-            start_date = end_date - timedelta(days=30)
-            data = stock.history(start=start_date, end=end_date, interval="1d")
-        elif period == "3mo":
-            start_date = end_date - timedelta(days=90)
-            data = stock.history(start=start_date, end=end_date, interval="1d")
-        elif period == "1y":
+        elif period == "1d":
             start_date = end_date - timedelta(days=365)
             data = stock.history(start=start_date, end=end_date, interval="1d")
+        elif period == "1w":
+            start_date = end_date - timedelta(weeks=52)
+            data = stock.history(start=start_date, end=end_date, interval="1wk")
+        elif period == "1mo":
+            start_date = end_date - timedelta(days=365*2)
+            data = stock.history(start=start_date, end=end_date, interval="1mo")
+        elif period == "3mo":
+            start_date = end_date - timedelta(days=365*5)
+            data = stock.history(start=start_date, end=end_date, interval="3mo")
         else:
             data = stock.history(period=period)
         
