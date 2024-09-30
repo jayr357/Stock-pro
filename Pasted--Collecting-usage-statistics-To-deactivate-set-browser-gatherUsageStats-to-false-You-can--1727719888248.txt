@@ -1,0 +1,66 @@
+
+Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:5000
+
+2024-09-30 18:07:05,079 - INFO - Initial stock_symbol input: 
+2024-09-30 18:07:05,079 - INFO - Randomly selected stock_symbol: AMZN
+2024-09-30 18:07:05,079 - INFO - Fetching data for stock_symbol: AMZN
+2024-09-30 18:07:05,256 - INFO - Initial stock_symbol input: 
+2024-09-30 18:07:05,256 - INFO - Randomly selected stock_symbol: GOOGL
+2024-09-30 18:07:05,256 - INFO - Fetching data for stock_symbol: GOOGL
+2024-09-30 18:07:05,430 - INFO - Data fetched for stock_symbol: AMZN
+2024-09-30 18:07:05,460 - ERROR - AMZN: Period '1m' is invalid, must be one of ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+2024-09-30 18:07:05,460 - ERROR - Error fetching advanced stock data for AMZN: No data available for symbol: AMZN
+2024-09-30 18:07:05,460 - ERROR - Invalid stock symbol: AMZN
+2024-09-30 18:07:05,469 - INFO - Data fetched for stock_symbol: GOOGL
+2024-09-30 18:07:05,497 - ERROR - GOOGL: Period '1m' is invalid, must be one of ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+2024-09-30 18:07:05,497 - ERROR - Error fetching advanced stock data for GOOGL: No data available for symbol: GOOGL
+2024-09-30 18:07:05,497 - ERROR - Invalid stock symbol: GOOGL
+2024-09-30 18:07:08,056 - ERROR - 404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=02d6cniieuy
+2024-09-30 18:07:08,077 - ERROR - Error fetching stock info for E.G.: Invalid stock symbol: E.G.
+2024-09-30 18:07:08.077 Uncaught app exception
+Traceback (most recent call last):
+  File "/home/runner/StockTrackerPro/stock_data.py", line 27, in get_stock_info
+    raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+stock_data.InvalidStockSymbolError: Invalid stock symbol: E.G.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/StockTrackerPro/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 88, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/home/runner/StockTrackerPro/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 590, in code_to_exec
+    exec(code, module.__dict__)
+  File "/home/runner/StockTrackerPro/main.py", line 179, in <module>
+    stock_info = get_stock_info(stock)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/StockTrackerPro/stock_data.py", line 53, in get_stock_info
+    raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+stock_data.InvalidStockSymbolError: Invalid stock symbol: E.G.
+2024-09-30 18:07:08,641 - ERROR - 404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=02d6cniieuy
+2024-09-30 18:07:08,642 - ERROR - Error fetching stock info for E.G.: Invalid stock symbol: E.G.
+2024-09-30 18:07:08.642 Uncaught app exception
+Traceback (most recent call last):
+  File "/home/runner/StockTrackerPro/stock_data.py", line 27, in get_stock_info
+    raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+stock_data.InvalidStockSymbolError: Invalid stock symbol: E.G.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/StockTrackerPro/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 88, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/home/runner/StockTrackerPro/.pythonlibs/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 590, in code_to_exec
+    exec(code, module.__dict__)
+  File "/home/runner/StockTrackerPro/main.py", line 179, in <module>
+    stock_info = get_stock_info(stock)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/StockTrackerPro/stock_data.py", line 53, in get_stock_info
+    raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+stock_data.InvalidStockSymbolError: Invalid stock symbol: E.G.
