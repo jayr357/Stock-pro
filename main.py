@@ -14,21 +14,17 @@ import socket
 import traceback
 import logging
 
-# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Initialize the database
 initialize_db()
 
 st.set_page_config(page_title="Stock Data Visualization", page_icon="assets/favicon.svg", layout="wide")
 
 st.title("Stock Data Retrieval and Visualization Tool")
 
-# Create tabs for different sections
 tab1, tab2, tab3 = st.tabs(["Stock Analysis", "Economic Indicators", "Watchlist"])
 
 with tab1:
-    # User input for stock symbol
     default_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META']
     stock_symbol = st.text_input("Enter a stock symbol:", value="").upper()
     
@@ -41,17 +37,14 @@ with tab1:
     if stock_symbol:
         try:
             logging.info(f"Fetching data for stock_symbol: {stock_symbol}")
-            # Fetch stock data
             stock_data = get_advanced_stock_data(stock_symbol)
             stock_info = get_stock_info(stock_symbol)
             
             logging.info(f"Data fetched for stock_symbol: {stock_symbol}")
 
             if stock_data is not None and stock_info is not None:
-                # Display stock name and symbol
                 st.header(f"{stock_symbol} - {stock_info['longName']}")
 
-                # Display financial metrics
                 st.subheader("Financial Metrics")
                 col1, col2, col3, col4 = st.columns(4)
                 col1.metric("Market Cap", f"${stock_info['marketCap']:,.0f}" if isinstance(stock_info['marketCap'], (int, float)) and stock_info['marketCap'] is not None else "N/A")
@@ -59,7 +52,6 @@ with tab1:
                 col3.metric("EPS", f"${stock_info['trailingEps']:.2f}" if isinstance(stock_info['trailingEps'], (int, float)) else "N/A")
                 col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
-                # Stock price chart with advanced indicators
                 st.subheader("Stock Price Chart with Advanced Indicators")
                 time_period = st.selectbox("Select time period", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
@@ -67,7 +59,6 @@ with tab1:
                 if chart_data is not None and not chart_data.empty:
                     fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
 
-                    # Candlestick chart
                     fig.add_trace(go.Candlestick(
                         x=chart_data.index,
                         open=chart_data['Open'],
@@ -77,13 +68,9 @@ with tab1:
                         name="Price"
                     ), row=1, col=1)
 
-                    # Add other indicators (Bollinger Bands, MACD, RSI, etc.)
-                    # ...
-
                     fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators")
                     st.plotly_chart(fig, use_container_width=True)
 
-                # Display correlation matrix
                 st.subheader("Correlation Matrix")
                 correlation_matrix = chart_data[['Close', 'Volume', 'MACD', 'RSI', 'SMA_50', 'SMA_200', 'BB_Upper', 'BB_Lower']].corr()
                 fig_corr = go.Figure(data=go.Heatmap(z=correlation_matrix.values,
@@ -93,7 +80,6 @@ with tab1:
                 fig_corr.update_layout(height=600, width=800)
                 st.plotly_chart(fig_corr)
 
-                # Download CSV
                 csv = convert_to_csv(stock_data)
                 st.download_button(
                     label="Download CSV",
@@ -102,16 +88,14 @@ with tab1:
                     mime="text/csv"
                 )
 
-                # Save stock to database
                 if st.button("Add to Watchlist"):
                     save_stock_to_db(stock_symbol)
                     st.success(f"Added {stock_symbol} to your watchlist!")
 
-                # Display news articles with sentiment analysis
                 st.subheader("Recent News Articles with Sentiment Analysis")
                 news_articles = get_news_articles(stock_symbol)
                 news_articles_with_sentiment = analyze_news_sentiment(news_articles)
-                for article in news_articles_with_sentiment[:5]:  # Display top 5 articles
+                for article in news_articles_with_sentiment[:5]:
                     st.markdown(f"[{article['title']}]({article['url']})")
                     st.write(article['description'])
                     if 'sentiment' in article:
@@ -139,16 +123,10 @@ with tab2:
     st.header("Economic Indicators")
     
     try:
-        # Get relevant economic indicators
         indicators = get_relevant_economic_indicators(stock_symbol)
-        
-        # Initialize FRED API client
         fred = Fred(api_key=st.secrets["FRED_API_KEY"])
-        
-        # Fetch economic indicator data
         indicator_data = get_economic_indicators(indicators)
         
-        # Display economic indicators
         for indicator, data in indicator_data.items():
             st.subheader(f"{indicator} - {fred.get_series_info(indicator).title}")
             fig = go.Figure()
@@ -163,7 +141,6 @@ with tab2:
 with tab3:
     st.header("Your Watchlist")
     
-    # Add multiple stocks to watchlist
     new_stocks = st.text_input("Add multiple stocks (comma-separated)", "e.g., TSLA, NVDA, JPM, DIS, NFLX")
     if st.button("Add Stocks"):
         new_stock_list = [stock.strip().upper() for stock in new_stocks.split(',') if stock.strip()]
@@ -172,7 +149,6 @@ with tab3:
         st.success(f"Added {len(new_stock_list)} stocks to your watchlist!")
         st.rerun()
 
-    # Display watchlist
     user_stocks = get_user_stocks()
     if user_stocks:
         for stock in user_stocks:
@@ -200,11 +176,9 @@ with tab3:
     else:
         st.write("Your watchlist is empty. Add stocks to track them.")
 
-# Add some information about the app
 st.sidebar.title("About")
 st.sidebar.info("This app allows you to retrieve and visualize stock data, track stocks, view related news articles with sentiment analysis, and analyze economic indicators.")
 
-# Add Dear User guide to the sidebar
 st.sidebar.title("User Guide")
 if st.sidebar.button("View User Guide"):
     with open("Dear_user.py", "r") as f:

@@ -44,9 +44,6 @@ def get_stock_info(symbol):
             'products': info.get('products', 'N/A'),
             'sector_contribution': sector_contribution
         }
-    except yf.exceptions.YFinanceException as yfe:
-        logging.error(f"YFinance error for {symbol}: {str(yfe)}")
-        raise InvalidStockSymbolError(f"Error fetching data for stock symbol: {symbol}. {str(yfe)}")
     except Exception as e:
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
@@ -102,9 +99,6 @@ def get_advanced_stock_data(symbol, period="1mo"):
         data['SMA_Crossover'] = np.where(data['SMA_50'] < data['SMA_200'], -1, data['SMA_Crossover'])
         
         return data
-    except yf.exceptions.YFinanceException as yfe:
-        logging.error(f"YFinance error for {symbol}: {str(yfe)}")
-        raise InvalidStockSymbolError(f"Error fetching data for stock symbol: {symbol}. {str(yfe)}")
     except Exception as e:
         logging.error(f"Error fetching advanced stock data for {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
