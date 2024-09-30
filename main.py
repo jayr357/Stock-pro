@@ -37,12 +37,11 @@ with tab1:
     if stock_symbol:
         try:
             logging.info(f"Fetching data for stock_symbol: {stock_symbol}")
-            stock_data = get_advanced_stock_data(stock_symbol)
             stock_info = get_stock_info(stock_symbol)
             
             logging.info(f"Data fetched for stock_symbol: {stock_symbol}")
 
-            if stock_data is not None and stock_info is not None:
+            if stock_info is not None:
                 st.header(f"{stock_symbol} - {stock_info['longName']}")
 
                 st.subheader("Financial Metrics")
@@ -52,13 +51,12 @@ with tab1:
                 col3.metric("EPS", f"${stock_info['trailingEps']:.2f}" if isinstance(stock_info['trailingEps'], (int, float)) else "N/A")
                 col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
-                st.subheader("Stock Price Chart with Advanced Indicators")
+                st.subheader("Stock Price Chart")
                 time_period = st.selectbox("Select time period", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
                 if chart_data is not None and not chart_data.empty:
-                    fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[0.5, 0.1, 0.1, 0.1, 0.1])
-
+                    fig = go.Figure()
                     fig.add_trace(go.Candlestick(
                         x=chart_data.index,
                         open=chart_data['Open'],
@@ -66,21 +64,12 @@ with tab1:
                         low=chart_data['Low'],
                         close=chart_data['Close'],
                         name="Price"
-                    ), row=1, col=1)
+                    ))
 
-                    fig.update_layout(height=1200, title=f"{stock_symbol} Stock Price and Indicators")
+                    fig.update_layout(height=600, title=f"{stock_symbol} Stock Price")
                     st.plotly_chart(fig, use_container_width=True)
 
-                st.subheader("Correlation Matrix")
-                correlation_matrix = chart_data[['Close', 'Volume', 'MACD', 'RSI', 'SMA_50', 'SMA_200', 'BB_Upper', 'BB_Lower']].corr()
-                fig_corr = go.Figure(data=go.Heatmap(z=correlation_matrix.values,
-                                                     x=correlation_matrix.index,
-                                                     y=correlation_matrix.columns,
-                                                     colorscale='Viridis'))
-                fig_corr.update_layout(height=600, width=800)
-                st.plotly_chart(fig_corr)
-
-                csv = convert_to_csv(stock_data)
+                csv = convert_to_csv(chart_data)
                 st.download_button(
                     label="Download CSV",
                     data=csv,
