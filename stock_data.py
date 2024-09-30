@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import logging
-from yfinance.exceptions import YFinanceException
 
 class InvalidStockSymbolError(Exception):
     pass
@@ -15,12 +14,9 @@ def get_stock_data(symbol, period="1mo"):
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}")
         return data
-    except YFinanceException as e:
+    except Exception as e:
         logging.error(f"YFinance error for symbol {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
-    except Exception as e:
-        logging.error(f"Error fetching stock data for {symbol}: {str(e)}")
-        raise
 
 def get_stock_info(symbol):
     try:
@@ -48,11 +44,8 @@ def get_stock_info(symbol):
             'products': info.get('products', 'N/A'),
             'sector_contribution': sector_contribution
         }
-    except YFinanceException as e:
-        logging.error(f"YFinance error for symbol {symbol}: {str(e)}")
-        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
     except Exception as e:
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
-        raise
+        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
 
 # Rest of the file remains unchanged
