@@ -105,7 +105,7 @@ with tab1:
                     st.write("---")
 
         except InvalidStockSymbolError as ise:
-            st.error(str(ise))
+            st.error(f"Error: {str(ise)} Examples of valid symbols: AAPL (Apple), GOOGL (Alphabet), MSFT (Microsoft).")
             logging.error(f"Invalid stock symbol: {stock_symbol}")
         except socket.error as se:
             st.error(f"Network error occurred: {str(se)}")
@@ -144,7 +144,6 @@ with tab3:
         added_stocks = []
         for new_stock in new_stock_list:
             try:
-                # Verify if the stock symbol is valid before adding to the watchlist
                 get_stock_info(new_stock)
                 save_stock_to_db(new_stock)
                 added_stocks.append(new_stock)
@@ -153,7 +152,7 @@ with tab3:
         
         if added_stocks:
             st.success(f"Added {', '.join(added_stocks)} to your watchlist!")
-            st.session_state.new_stocks_input = ""  # Clear the input field
+            st.session_state.new_stocks_input = ""
         st.rerun()
 
     user_stocks = get_user_stocks()
@@ -187,7 +186,6 @@ with tab3:
                 logging.error(f"Invalid stock symbol in watchlist: {stock}")
                 stocks_to_remove.append(stock)
         
-        # Remove invalid stocks from the watchlist
         for stock in stocks_to_remove:
             remove_stock_from_db(stock)
             st.warning(f"Removed invalid stock {stock} from your watchlist.")

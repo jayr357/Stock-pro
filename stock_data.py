@@ -24,7 +24,7 @@ def get_stock_info(symbol):
         info = stock.info
         
         # More robust check for valid stock symbols
-        if not info or 'symbol' not in info or 'shortName' not in info or symbol.upper() == 'E.G.':
+        if not info or 'symbol' not in info or 'shortName' not in info or any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123']):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         sector_contribution = get_sector_contribution(stock)
@@ -59,7 +59,7 @@ def get_advanced_stock_data(symbol, period="1mo"):
         info = stock.info
         
         # More robust check for valid stock symbols
-        if not info or 'symbol' not in info or 'shortName' not in info or symbol.upper() == 'E.G.':
+        if not info or 'symbol' not in info or 'shortName' not in info or any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123']):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         data = stock.history(period=period)
