@@ -1,0 +1,59 @@
+
+Debug: Initial stock_symbol input: 
+Debug: Randomly selected stock_symbol: AAPL
+Debug: Fetching data for stock_symbol: AAPL
+Debug: Data fetched for stock_symbol: AAPL
+Debug: Chart data fetched for stock_symbol: AAPL, period: 1m
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: 
+Debug: Randomly selected stock_symbol: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1m
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: NETA
+Debug: Fetching data for stock_symbol: NETA
+$NETA: possibly delisted; no price data found  (1mo 2022-10-01 02:57:34.180744 -> 2024-09-30 02:57:34.180744)
+No data available for NETA in the specified period.
+Debug: Data fetched for stock_symbol: NETA
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1m
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 5m
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 15m
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1h
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1d
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1w
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 1mo
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+Debug: Initial stock_symbol input: META
+Debug: Fetching data for stock_symbol: META
+Debug: Data fetched for stock_symbol: META
+Debug: Chart data fetched for stock_symbol: META, period: 3mo
+404 Client Error: Not Found for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/E.G.?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=E.G.&crumb=B4.7.tUIwKk
+^[[1;2A

@@ -16,6 +16,10 @@ def get_stock_info(symbol):
     try:
         stock = yf.Ticker(symbol)
         info = stock.info
+        
+        if not info:
+            raise ValueError(f"Invalid stock symbol: {symbol}")
+        
         sector_contribution = get_sector_contribution(stock)
         return {
             'marketCap': float(info.get('marketCap', 0)),
@@ -34,6 +38,9 @@ def get_stock_info(symbol):
             'products': info.get('products', 'N/A'),
             'sector_contribution': sector_contribution
         }
+    except ValueError as ve:
+        print(f"Error fetching stock info: {ve}")
+        return None
     except Exception as e:
         print(f"Error fetching stock info: {e}")
         return None

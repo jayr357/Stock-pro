@@ -244,7 +244,10 @@ with tab1:
                 st.write(stock_info['longBusinessSummary'])
 
             else:
-                st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
+                if stock_info is None:
+                    st.error(f"Invalid stock symbol: {stock_symbol}. Please enter a valid stock symbol.")
+                else:
+                    st.error("Unable to fetch stock data. Please check the stock symbol and try again.")
         except socket.error as se:
             st.error(f"Network error occurred: {str(se)}")
             print(f"Debug: Socket error: {str(se)}")
