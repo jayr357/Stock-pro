@@ -23,7 +23,8 @@ def get_stock_info(symbol):
         stock = yf.Ticker(symbol)
         info = stock.info
         
-        if not info or 'symbol' not in info or 'shortName' not in info:
+        # More robust check for valid stock symbols
+        if not info or 'symbol' not in info or 'shortName' not in info or symbol.upper() == 'E.G.':
             raise InvalidStockSymbolError(f"Invalid or non-existent stock symbol: {symbol}")
         
         sector_contribution = get_sector_contribution(stock)

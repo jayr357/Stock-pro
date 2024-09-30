@@ -104,9 +104,6 @@ with tab1:
                         st.progress(sentiment['compound'] + 1, text="Sentiment Score")
                     st.write("---")
 
-            else:
-                st.error(f"Unable to fetch data for {stock_symbol}. Please check the stock symbol and try again.")
-
         except InvalidStockSymbolError as ise:
             st.error(str(ise))
             logging.error(f"Invalid stock symbol: {stock_symbol}")
@@ -145,12 +142,18 @@ with tab3:
     if st.button("Add Stocks"):
         new_stock_list = [stock.strip().upper() for stock in new_stocks.split(',') if stock.strip()]
         for new_stock in new_stock_list:
-            save_stock_to_db(new_stock)
-        st.success(f"Added {len(new_stock_list)} stocks to your watchlist!")
+            try:
+                # Verify if the stock symbol is valid before adding to the watchlist
+                get_stock_info(new_stock)
+                save_stock_to_db(new_stock)
+                st.success(f"Added {new_stock} to your watchlist!")
+            except InvalidStockSymbolError:
+                st.error(f"Invalid stock symbol: {new_stock}. Not added to watchlist.")
         st.rerun()
 
     user_stocks = get_user_stocks()
     if user_stocks:
+        stocks_to_remove = []
         for stock in user_stocks:
             try:
                 stock_info = get_stock_info(stock)
@@ -177,6 +180,15 @@ with tab3:
             except InvalidStockSymbolError as ise:
                 st.error(f"Error fetching data for {stock}: {str(ise)}")
                 logging.error(f"Invalid stock symbol in watchlist: {stock}")
+                stocks_to_remove.append(stock)
+        
+        # Remove invalid stocks from the watchlist
+        for stock in stocks_to_remove:
+            remove_stock_from_db(stock)
+            st.warning(f"Removed invalid stock {stock} from your watchlist.")
+        
+        if stocks_to_remove:
+            st.rerun()
     else:
         st.write("Your watchlist is empty. Add stocks to track them.")
 
