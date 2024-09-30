@@ -28,7 +28,6 @@ with tab1:
     default_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META']
     stock_symbol = st.text_input("Enter a stock symbol:", value="").upper()
     
-    # Debug print
     print(f"Debug: Initial stock_symbol input: {stock_symbol}")
     
     if not stock_symbol:

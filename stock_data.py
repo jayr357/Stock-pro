@@ -17,7 +17,7 @@ def get_stock_info(symbol):
         stock = yf.Ticker(symbol)
         info = stock.info
         
-        if not info:
+        if not info or 'symbol' not in info:
             raise ValueError(f"Invalid stock symbol: {symbol}")
         
         sector_contribution = get_sector_contribution(stock)
@@ -47,9 +47,6 @@ def get_stock_info(symbol):
 
 def get_sector_contribution(stock):
     try:
-        # This is a placeholder function. In reality, you would need to
-        # implement logic to fetch and calculate sector contribution data.
-        # For now, we'll return some dummy data.
         return {
             'Technology': 0.4,
             'Consumer Cyclical': 0.3,
@@ -134,12 +131,10 @@ def get_advanced_stock_data(symbol, period="1mo"):
             print(f"No data available for {symbol} in the specified period.")
             return None
         
-        # Convert relevant columns to numeric type
         numeric_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
         for col in numeric_columns:
             data[col] = pd.to_numeric(data[col], errors='coerce')
         
-        # Calculate advanced indicators
         macd_data = calculate_macd(data)
         data['MACD'] = macd_data['MACD'].astype(float)
         data['Signal'] = macd_data['Signal'].astype(float)
