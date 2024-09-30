@@ -15,7 +15,7 @@ def get_stock_data(symbol, period="1mo"):
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}")
         return data
     except Exception as e:
-        logging.error(f"YFinance error for symbol {symbol}: {str(e)}")
+        logging.error(f"Error for symbol {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
 
 def get_stock_info(symbol):

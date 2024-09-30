@@ -152,27 +152,31 @@ with tab3:
     user_stocks = get_user_stocks()
     if user_stocks:
         for stock in user_stocks:
-            stock_info = get_stock_info(stock)
-            if stock_info:
-                col1, col2, col3 = st.columns([3, 2, 1])
-                col1.subheader(f"{stock} - {stock_info['longName']}")
-                
-                current_price = stock_info.get('currentPrice', 'N/A')
-                percent_change = stock_info.get('percentChange', 'N/A')
-                
-                price_display = f"${current_price:.2f}" if isinstance(current_price, (int, float)) else str(current_price)
-                change_display = f"{percent_change:.2f}%" if isinstance(percent_change, (int, float)) else str(percent_change)
-                
-                col2.metric("Price", price_display, change_display)
-                
-                if col3.button("Remove", key=f"remove_{stock}"):
-                    remove_stock_from_db(stock)
-                    st.success(f"Removed {stock} from your watchlist!")
-                    st.rerun()
-                
-                st.write(f"Sector: {stock_info.get('sector', 'N/A')}")
-                st.write(f"Industry: {stock_info.get('industry', 'N/A')}")
-                st.write("---")
+            try:
+                stock_info = get_stock_info(stock)
+                if stock_info:
+                    col1, col2, col3 = st.columns([3, 2, 1])
+                    col1.subheader(f"{stock} - {stock_info['longName']}")
+                    
+                    current_price = stock_info.get('currentPrice', 'N/A')
+                    percent_change = stock_info.get('percentChange', 'N/A')
+                    
+                    price_display = f"${current_price:.2f}" if isinstance(current_price, (int, float)) else str(current_price)
+                    change_display = f"{percent_change:.2f}%" if isinstance(percent_change, (int, float)) else str(percent_change)
+                    
+                    col2.metric("Price", price_display, change_display)
+                    
+                    if col3.button("Remove", key=f"remove_{stock}"):
+                        remove_stock_from_db(stock)
+                        st.success(f"Removed {stock} from your watchlist!")
+                        st.rerun()
+                    
+                    st.write(f"Sector: {stock_info.get('sector', 'N/A')}")
+                    st.write(f"Industry: {stock_info.get('industry', 'N/A')}")
+                    st.write("---")
+            except InvalidStockSymbolError as ise:
+                st.error(f"Error fetching data for {stock}: {str(ise)}")
+                logging.error(f"Invalid stock symbol in watchlist: {stock}")
     else:
         st.write("Your watchlist is empty. Add stocks to track them.")
 
