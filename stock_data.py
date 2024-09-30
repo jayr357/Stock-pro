@@ -26,15 +26,19 @@ def get_stock_info(symbol):
         if not info or 'symbol' not in info:
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
         
+        # Check if the symbol is valid by trying to access a key piece of information
+        if 'longName' not in info:
+            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+        
         sector_contribution = get_sector_contribution(stock)
         return {
+            'longName': info.get('longName', 'N/A'),
             'marketCap': float(info.get('marketCap', 0)),
             'trailingPE': info.get('trailingPE', 'N/A'),
             'trailingEps': info.get('trailingEps', 'N/A'),
             'dividendYield': info.get('dividendYield', 'N/A'),
             'currentPrice': info.get('currentPrice', 'N/A'),
             'percentChange': info.get('regularMarketChangePercent', 'N/A'),
-            'longName': info.get('longName', 'N/A'),
             'longBusinessSummary': info.get('longBusinessSummary', 'N/A'),
             'founded': info.get('founded', 'N/A'),
             'industry': info.get('industry', 'N/A'),
@@ -48,4 +52,65 @@ def get_stock_info(symbol):
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
 
-# Rest of the file remains unchanged
+def get_advanced_stock_data(symbol, period="1mo"):
+    try:
+        stock = yf.Ticker(symbol)
+        data = stock.history(period=period)
+        
+        if data.empty:
+            raise InvalidStockSymbolError(f"No data available for symbol: {symbol}")
+        
+        # Calculate additional indicators
+        data['SMA_50'] = data['Close'].rolling(window=50).mean()
+        data['SMA_200'] = data['Close'].rolling(window=200).mean()
+        
+        # MACD
+        data['EMA_12'] = data['Close'].ewm(span=12, adjust=False).mean()
+        data['EMA_26'] = data['Close'].ewm(span=26, adjust=False).mean()
+        data['MACD'] = data['EMA_12'] - data['EMA_26']
+        data['Signal'] = data['MACD'].ewm(span=9, adjust=False).mean()
+        data['Histogram'] = data['MACD'] - data['Signal']
+        
+        # RSI
+        delta = data['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        data['RSI'] = 100 - (100 / (1 + rs))
+        
+        # Bollinger Bands
+        data['BB_Middle'] = data['Close'].rolling(window=20).mean()
+        data['BB_Upper'] = data['BB_Middle'] + 2 * data['Close'].rolling(window=20).std()
+        data['BB_Lower'] = data['BB_Middle'] - 2 * data['Close'].rolling(window=20).std()
+        
+        # Fibonacci Retracement
+        high = data['High'].max()
+        low = data['Low'].min()
+        diff = high - low
+        data['Fib_0'] = low
+        data['Fib_24'] = low + 0.236 * diff
+        data['Fib_38'] = low + 0.382 * diff
+        data['Fib_50'] = low + 0.5 * diff
+        data['Fib_62'] = low + 0.618 * diff
+        data['Fib_100'] = high
+        
+        # SMA Crossover
+        data['SMA_Crossover'] = np.where(data['SMA_50'] > data['SMA_200'], 1, 0)
+        data['SMA_Crossover'] = np.where(data['SMA_50'] < data['SMA_200'], -1, data['SMA_Crossover'])
+        
+        return data
+    except Exception as e:
+        logging.error(f"Error fetching advanced stock data for {symbol}: {str(e)}")
+        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}")
+
+def get_sector_contribution(stock):
+    # This is a placeholder function. In a real-world scenario, you'd fetch this data from a reliable source.
+    return {
+        'Product A': 30,
+        'Product B': 25,
+        'Product C': 20,
+        'Other': 25
+    }
+
+# Ensure all necessary functions are exported
+__all__ = ['get_stock_data', 'get_stock_info', 'get_advanced_stock_data', 'InvalidStockSymbolError']
