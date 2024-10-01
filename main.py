@@ -137,7 +137,7 @@ with tab3:
                 save_stock_to_db(new_stock)
                 added_stocks.append(new_stock)
             except InvalidStockSymbolError as ise:
-                st.error(str(ise))
+                st.error(f"Error adding {new_stock}: {str(ise)}")
         
         if added_stocks:
             st.success(f"Added {', '.join(added_stocks)} to your watchlist!")

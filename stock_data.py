@@ -7,24 +7,34 @@ import logging
 class InvalidStockSymbolError(Exception):
     pass
 
+def is_valid_symbol(symbol):
+    # Add more comprehensive checks here
+    return symbol.isalpha() and len(symbol) > 0 and not any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123'])
+
 def get_stock_data(symbol, period="1mo"):
     try:
+        if not is_valid_symbol(symbol):
+            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        
         stock = yf.Ticker(symbol)
         data = stock.history(period=period)
         if data.empty:
-            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+            raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
         return data
     except Exception as e:
         logging.error(f"Error for symbol {symbol}: {str(e)}")
-        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_stock_info(symbol):
     try:
+        if not is_valid_symbol(symbol):
+            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        
         stock = yf.Ticker(symbol)
         info = stock.info
         
-        if not info or 'symbol' not in info or 'shortName' not in info or any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123']):
-            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        if not info or 'symbol' not in info or 'shortName' not in info:
+            raise InvalidStockSymbolError(f"No information available for symbol: {symbol}. Please enter a valid stock symbol.")
         
         sector_contribution = get_sector_contribution(stock)
         return {
@@ -46,7 +56,7 @@ def get_stock_info(symbol):
         }
     except Exception as e:
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
-        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        raise InvalidStockSymbolError(f"Error fetching information for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_advanced_stock_data(symbol, period="1mo"):
     valid_periods = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
@@ -54,21 +64,19 @@ def get_advanced_stock_data(symbol, period="1mo"):
         raise ValueError(f"Invalid period. Must be one of {valid_periods}")
     
     try:
-        stock = yf.Ticker(symbol)
-        info = stock.info
-        
-        if not info or 'symbol' not in info or 'shortName' not in info or any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123']):
+        if not is_valid_symbol(symbol):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
+        stock = yf.Ticker(symbol)
         data = stock.history(period=period)
         
         if data.empty:
-            raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+            raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
         
         return data
     except Exception as e:
         logging.error(f"Error fetching advanced stock data for {symbol}: {str(e)}")
-        raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
+        raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_sector_contribution(stock):
     # This is a placeholder function. In a real-world scenario, you'd fetch this data from a reliable source.
