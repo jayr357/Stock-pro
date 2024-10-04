@@ -9,7 +9,6 @@ from utils import convert_to_csv
 from economic_data import get_economic_indicators, get_relevant_economic_indicators
 from sentiment_analysis import analyze_news_sentiment
 from fredapi import Fred
-import random
 import socket
 import traceback
 import logging
@@ -22,19 +21,10 @@ st.set_page_config(page_title="Stock Data Visualization", page_icon="assets/favi
 
 st.title("Stock Data Retrieval and Visualization Tool")
 
-# Initialize session state for stock symbol
-if 'stock_symbol' not in st.session_state:
-    default_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META']
-    st.session_state.stock_symbol = random.choice(default_stocks)
-    logging.info(f"Randomly selected initial stock_symbol: {st.session_state.stock_symbol}")
-
 tab1, tab2, tab3 = st.tabs(["Stock Analysis", "Economic Indicators", "Watchlist"])
 
 with tab1:
-    stock_symbol = st.text_input("Enter a stock symbol:", value=st.session_state.stock_symbol).upper()
-    if stock_symbol != st.session_state.stock_symbol:
-        st.session_state.stock_symbol = stock_symbol
-        logging.info(f"User entered new stock_symbol: {stock_symbol}")
+    stock_symbol = st.text_input("Enter a stock symbol:").upper()
     
     if stock_symbol:
         try:
