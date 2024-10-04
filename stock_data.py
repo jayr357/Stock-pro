@@ -8,8 +8,14 @@ class InvalidStockSymbolError(Exception):
     pass
 
 def is_valid_symbol(symbol):
-    # Add more comprehensive checks here
-    return symbol.isalpha() and len(symbol) > 0 and not any(symbol.upper() == invalid for invalid in ['E.G.', 'INVALID', '123'])
+    if not symbol.isalpha() or len(symbol) == 0:
+        return False
+    try:
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+        return 'symbol' in info and 'regularMarketPrice' in info and info['regularMarketPrice'] is not None
+    except:
+        return False
 
 def get_stock_data(symbol, period="1mo"):
     try:
@@ -68,37 +74,17 @@ def calculate_support_resistance(data, window=14):
     return support, resistance
 
 def get_advanced_stock_data(symbol, period="1mo"):
-    valid_periods = {
-        "1m": "1m",
-        "5m": "5m",
-        "30min": "30m",
-        "1hr": "1h",
-        "5hr": "5h",
-        "1day": "1d",
-        "3month": "3mo",
-        "1year": "1y"
-    }
+    valid_periods = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
     
     if period not in valid_periods:
-        raise ValueError(f"Invalid period. Must be one of {list(valid_periods.keys())}")
+        raise ValueError(f"Invalid period. Must be one of {valid_periods}")
     
     try:
         if not is_valid_symbol(symbol):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         stock = yf.Ticker(symbol)
-        
-        # For periods less than 1 day, we need to fetch intraday data
-        if period in ["1m", "5m", "30min", "1hr", "5hr"]:
-            end_date = datetime.now()
-            if period == "5hr":
-                start_date = end_date - timedelta(hours=5)
-            else:
-                start_date = end_date - timedelta(days=1)  # yfinance allows max 1 day for intraday data
-            
-            data = stock.history(start=start_date, end=end_date, interval=valid_periods[period])
-        else:
-            data = stock.history(period=valid_periods[period])
+        data = stock.history(period=period)
         
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
