@@ -55,6 +55,9 @@ with tab1:
                 time_period = st.selectbox("Select time period", ["1m", "5m", "30min", "1hr", "5hr", "1day", "3month", "1year"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
+                show_support = st.checkbox("Show Support Line", value=True)
+                show_resistance = st.checkbox("Show Resistance Line", value=True)
+                
                 if chart_data is not None and not chart_data.empty:
                     fig = go.Figure()
                     fig.add_trace(go.Candlestick(
@@ -66,23 +69,10 @@ with tab1:
                         name="Price"
                     ))
 
-                    # Add support line
-                    fig.add_trace(go.Scatter(
-                        x=chart_data.index,
-                        y=chart_data['Support'],
-                        mode='lines',
-                        line=dict(color='green', width=1),
-                        name='Support'
-                    ))
-
-                    # Add resistance line
-                    fig.add_trace(go.Scatter(
-                        x=chart_data.index,
-                        y=chart_data['Resistance'],
-                        mode='lines',
-                        line=dict(color='red', width=1),
-                        name='Resistance'
-                    ))
+                    if show_support:
+                        fig.add_hline(y=chart_data['Support'].iloc[0], line_dash="dash", line_color="green", annotation_text="Support")
+                    if show_resistance:
+                        fig.add_hline(y=chart_data['Resistance'].iloc[0], line_dash="dash", line_color="red", annotation_text="Resistance")
 
                     fig.update_layout(height=600, title=f"{stock_symbol} Stock Price")
                     st.plotly_chart(fig, use_container_width=True)

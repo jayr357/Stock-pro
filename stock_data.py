@@ -62,8 +62,8 @@ def calculate_support_resistance(data, window=14):
     rolling_min = data['Low'].rolling(window=window).min()
     rolling_max = data['High'].rolling(window=window).max()
     
-    support = rolling_min.rolling(window=3).mean()
-    resistance = rolling_max.rolling(window=3).mean()
+    support = rolling_min.mean()
+    resistance = rolling_max.mean()
     
     return support, resistance
 
