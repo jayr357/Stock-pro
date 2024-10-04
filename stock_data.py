@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import logging
+import traceback
 
 class InvalidStockSymbolError(Exception):
     pass
@@ -15,16 +16,17 @@ def is_valid_symbol(symbol):
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
-        if 'symbol' not in info or info['symbol'] != symbol:
-            logging.error(f"Invalid symbol: {symbol} - Symbol mismatch or not found in info")
+        if not info:
+            logging.error(f"Invalid symbol: {symbol} - No info available")
             return False
-        if 'regularMarketPrice' not in info or info['regularMarketPrice'] is None:
-            logging.error(f"Invalid symbol: {symbol} - No market price available")
+        if 'symbol' not in info:
+            logging.error(f"Invalid symbol: {symbol} - Symbol not found in info")
             return False
         logging.info(f"Valid symbol: {symbol}")
         return True
     except Exception as e:
         logging.error(f"Error validating symbol {symbol}: {str(e)}")
+        logging.error(traceback.format_exc())
         return False
 
 def get_stock_data(symbol, period="1mo"):
@@ -39,6 +41,7 @@ def get_stock_data(symbol, period="1mo"):
         return data
     except Exception as e:
         logging.error(f"Error for symbol {symbol}: {str(e)}")
+        logging.error(traceback.format_exc())
         raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_stock_info(symbol):
@@ -49,7 +52,7 @@ def get_stock_info(symbol):
         stock = yf.Ticker(symbol)
         info = stock.info
         
-        if not info or 'symbol' not in info or 'shortName' not in info:
+        if not info:
             raise InvalidStockSymbolError(f"No information available for symbol: {symbol}. Please enter a valid stock symbol.")
         
         sector_contribution = get_sector_contribution(stock)
@@ -72,6 +75,7 @@ def get_stock_info(symbol):
         }
     except Exception as e:
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
+        logging.error(traceback.format_exc())
         raise InvalidStockSymbolError(f"Error fetching information for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def calculate_support_resistance(data, window=14):
@@ -107,6 +111,7 @@ def get_advanced_stock_data(symbol, period="1mo"):
         return data
     except Exception as e:
         logging.error(f"Error fetching advanced stock data for {symbol}: {str(e)}")
+        logging.error(traceback.format_exc())
         raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_sector_contribution(stock):
