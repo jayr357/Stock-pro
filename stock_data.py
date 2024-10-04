@@ -8,13 +8,23 @@ class InvalidStockSymbolError(Exception):
     pass
 
 def is_valid_symbol(symbol):
-    if not symbol.isalpha() or len(symbol) == 0:
+    logging.info(f"Checking validity of symbol: {symbol}")
+    if len(symbol) == 0:
+        logging.error(f"Invalid symbol: Empty string")
         return False
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
-        return 'symbol' in info and 'regularMarketPrice' in info and info['regularMarketPrice'] is not None
-    except:
+        if 'symbol' not in info or info['symbol'] != symbol:
+            logging.error(f"Invalid symbol: {symbol} - Symbol mismatch or not found in info")
+            return False
+        if 'regularMarketPrice' not in info or info['regularMarketPrice'] is None:
+            logging.error(f"Invalid symbol: {symbol} - No market price available")
+            return False
+        logging.info(f"Valid symbol: {symbol}")
+        return True
+    except Exception as e:
+        logging.error(f"Error validating symbol {symbol}: {str(e)}")
         return False
 
 def get_stock_data(symbol, period="1mo"):
@@ -89,10 +99,8 @@ def get_advanced_stock_data(symbol, period="1mo"):
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
         
-        # Calculate support and resistance
         support, resistance = calculate_support_resistance(data)
         
-        # Add support and resistance to the data
         data['Support'] = support
         data['Resistance'] = resistance
         
@@ -102,7 +110,6 @@ def get_advanced_stock_data(symbol, period="1mo"):
         raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_sector_contribution(stock):
-    # This is a placeholder function. In a real-world scenario, you'd fetch this data from a reliable source.
     return {
         'Product A': 30,
         'Product B': 25,
@@ -110,5 +117,4 @@ def get_sector_contribution(stock):
         'Other': 25
     }
 
-# Ensure all necessary functions are exported
 __all__ = ['get_stock_data', 'get_stock_info', 'get_advanced_stock_data', 'InvalidStockSymbolError']
