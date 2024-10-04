@@ -44,7 +44,7 @@ with tab1:
                 col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
                 st.subheader("Stock Price Chart")
-                time_period = st.selectbox("Select time period", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"])
+                time_period = st.selectbox("Select time period", ["1m", "5m", "15m", "30m", "1hr", "24hr", "3month", "1year"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
                 show_support = st.checkbox("Show Support Line", value=True)

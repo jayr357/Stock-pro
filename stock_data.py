@@ -88,17 +88,35 @@ def calculate_support_resistance(data, window=14):
     return support, resistance
 
 def get_advanced_stock_data(symbol, period="1mo"):
-    valid_periods = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
+    valid_periods = {
+        "1m": "1d",
+        "5m": "5d",
+        "15m": "1wk",
+        "30m": "1mo",
+        "1hr": "1mo",
+        "24hr": "1mo",
+        "3month": "3mo",
+        "1year": "1y"
+    }
     
     if period not in valid_periods:
-        raise ValueError(f"Invalid period. Must be one of {valid_periods}")
+        raise ValueError(f"Invalid period. Must be one of {list(valid_periods.keys())}")
     
     try:
         if not is_valid_symbol(symbol):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         stock = yf.Ticker(symbol)
-        data = stock.history(period=period)
+        yf_period = valid_periods[period]
+        
+        if period in ["1m", "5m", "15m", "30m", "1hr"]:
+            interval = period
+        elif period == "24hr":
+            interval = "1h"
+        else:
+            interval = "1d"
+        
+        data = stock.history(period=yf_period, interval=interval)
         
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
