@@ -59,16 +59,37 @@ def get_stock_info(symbol):
         raise InvalidStockSymbolError(f"Error fetching information for symbol: {symbol}. Please try again or enter a different symbol.")
 
 def get_advanced_stock_data(symbol, period="1mo"):
-    valid_periods = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
+    valid_periods = {
+        "1m": "1m",
+        "5m": "5m",
+        "30min": "30m",
+        "1hr": "1h",
+        "5hr": "5h",
+        "1day": "1d",
+        "3month": "3mo",
+        "1year": "1y"
+    }
+    
     if period not in valid_periods:
-        raise ValueError(f"Invalid period. Must be one of {valid_periods}")
+        raise ValueError(f"Invalid period. Must be one of {list(valid_periods.keys())}")
     
     try:
         if not is_valid_symbol(symbol):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         stock = yf.Ticker(symbol)
-        data = stock.history(period=period)
+        
+        # For periods less than 1 day, we need to fetch intraday data
+        if period in ["1m", "5m", "30min", "1hr", "5hr"]:
+            end_date = datetime.now()
+            if period == "5hr":
+                start_date = end_date - timedelta(hours=5)
+            else:
+                start_date = end_date - timedelta(days=1)  # yfinance allows max 1 day for intraday data
+            
+            data = stock.history(start=start_date, end=end_date, interval=valid_periods[period])
+        else:
+            data = stock.history(period=valid_periods[period])
         
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")

@@ -52,7 +52,7 @@ with tab1:
                 col4.metric("Dividend Yield", f"{stock_info['dividendYield']*100:.2f}%" if isinstance(stock_info['dividendYield'], (int, float)) else "N/A")
 
                 st.subheader("Stock Price Chart")
-                time_period = st.selectbox("Select time period", ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"])
+                time_period = st.selectbox("Select time period", ["1m", "5m", "30min", "1hr", "5hr", "1day", "3month", "1year"])
                 chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
                 
                 if chart_data is not None and not chart_data.empty:
