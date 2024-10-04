@@ -66,6 +66,24 @@ with tab1:
                         name="Price"
                     ))
 
+                    # Add support line
+                    fig.add_trace(go.Scatter(
+                        x=chart_data.index,
+                        y=chart_data['Support'],
+                        mode='lines',
+                        line=dict(color='green', width=1),
+                        name='Support'
+                    ))
+
+                    # Add resistance line
+                    fig.add_trace(go.Scatter(
+                        x=chart_data.index,
+                        y=chart_data['Resistance'],
+                        mode='lines',
+                        line=dict(color='red', width=1),
+                        name='Resistance'
+                    ))
+
                     fig.update_layout(height=600, title=f"{stock_symbol} Stock Price")
                     st.plotly_chart(fig, use_container_width=True)
 

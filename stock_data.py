@@ -58,6 +58,15 @@ def get_stock_info(symbol):
         logging.error(f"Error fetching stock info for {symbol}: {str(e)}")
         raise InvalidStockSymbolError(f"Error fetching information for symbol: {symbol}. Please try again or enter a different symbol.")
 
+def calculate_support_resistance(data, window=14):
+    rolling_min = data['Low'].rolling(window=window).min()
+    rolling_max = data['High'].rolling(window=window).max()
+    
+    support = rolling_min.rolling(window=3).mean()
+    resistance = rolling_max.rolling(window=3).mean()
+    
+    return support, resistance
+
 def get_advanced_stock_data(symbol, period="1mo"):
     valid_periods = {
         "1m": "1m",
@@ -93,6 +102,13 @@ def get_advanced_stock_data(symbol, period="1mo"):
         
         if data.empty:
             raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
+        
+        # Calculate support and resistance
+        support, resistance = calculate_support_resistance(data)
+        
+        # Add support and resistance to the data
+        data['Support'] = support
+        data['Resistance'] = resistance
         
         return data
     except Exception as e:
