@@ -45,37 +45,47 @@ with tab1:
 
                 st.subheader("Stock Price Chart")
                 time_period = st.selectbox("Select time period", ["1m", "5m", "15m", "30m", "1hr", "24hr", "3month", "1year"])
-                chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
-                
-                show_support = st.checkbox("Show Support Line", value=True)
-                show_resistance = st.checkbox("Show Resistance Line", value=True)
-                
-                if chart_data is not None and not chart_data.empty:
-                    fig = go.Figure()
-                    fig.add_trace(go.Candlestick(
-                        x=chart_data.index,
-                        open=chart_data['Open'],
-                        high=chart_data['High'],
-                        low=chart_data['Low'],
-                        close=chart_data['Close'],
-                        name="Price"
-                    ))
+                try:
+                    chart_data = get_advanced_stock_data(stock_symbol, period=time_period)
+                    
+                    show_support = st.checkbox("Show Support Line", value=True)
+                    show_resistance = st.checkbox("Show Resistance Line", value=True)
+                    
+                    if chart_data is not None and not chart_data.empty:
+                        fig = go.Figure()
+                        fig.add_trace(go.Candlestick(
+                            x=chart_data.index,
+                            open=chart_data['Open'],
+                            high=chart_data['High'],
+                            low=chart_data['Low'],
+                            close=chart_data['Close'],
+                            name="Price"
+                        ))
 
-                    if show_support:
-                        fig.add_hline(y=chart_data['Support'].iloc[0], line_dash="dash", line_color="green", annotation_text="Support")
-                    if show_resistance:
-                        fig.add_hline(y=chart_data['Resistance'].iloc[0], line_dash="dash", line_color="red", annotation_text="Resistance")
+                        if show_support:
+                            fig.add_hline(y=chart_data['Support'].iloc[0], line_dash="dash", line_color="green", annotation_text="Support")
+                        if show_resistance:
+                            fig.add_hline(y=chart_data['Resistance'].iloc[0], line_dash="dash", line_color="red", annotation_text="Resistance")
 
-                    fig.update_layout(height=600, title=f"{stock_symbol} Stock Price")
-                    st.plotly_chart(fig, use_container_width=True)
+                        fig.update_layout(height=600, title=f"{stock_symbol} Stock Price")
+                        st.plotly_chart(fig, use_container_width=True)
 
-                csv = convert_to_csv(chart_data)
-                st.download_button(
-                    label="Download CSV",
-                    data=csv,
-                    file_name=f"{stock_symbol}_stock_data.csv",
-                    mime="text/csv"
-                )
+                        csv = convert_to_csv(chart_data)
+                        st.download_button(
+                            label="Download CSV",
+                            data=csv,
+                            file_name=f"{stock_symbol}_stock_data.csv",
+                            mime="text/csv"
+                        )
+                    else:
+                        st.warning(f"No data available for {stock_symbol} with the selected time period.")
+                except InvalidStockSymbolError as ise:
+                    st.error(f"Error: {str(ise)}")
+                    logging.error(f"Error fetching chart data: {str(ise)}")
+                except Exception as e:
+                    st.error(f"An unexpected error occurred while fetching chart data: {str(e)}")
+                    logging.error(f"Unexpected error fetching chart data: {str(e)}")
+                    logging.error(traceback.format_exc())
 
                 if st.button("Add to Watchlist"):
                     save_stock_to_db(stock_symbol)

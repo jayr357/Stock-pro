@@ -89,14 +89,14 @@ def calculate_support_resistance(data, window=14):
 
 def get_advanced_stock_data(symbol, period="1mo"):
     valid_periods = {
-        "1m": "1d",
-        "5m": "5d",
-        "15m": "1wk",
-        "30m": "1mo",
-        "1hr": "1mo",
-        "24hr": "1mo",
-        "3month": "3mo",
-        "1year": "1y"
+        "1m": ("1d", "1m"),
+        "5m": ("5d", "5m"),
+        "15m": ("7d", "15m"),
+        "30m": ("60d", "30m"),
+        "1hr": ("60d", "1h"),
+        "24hr": ("60d", "1h"),
+        "3month": ("3mo", "1d"),
+        "1year": ("1y", "1d")
     }
     
     if period not in valid_periods:
@@ -107,19 +107,12 @@ def get_advanced_stock_data(symbol, period="1mo"):
             raise InvalidStockSymbolError(f"Invalid stock symbol: {symbol}. Please enter a valid stock symbol.")
         
         stock = yf.Ticker(symbol)
-        yf_period = valid_periods[period]
-        
-        if period in ["1m", "5m", "15m", "30m", "1hr"]:
-            interval = period
-        elif period == "24hr":
-            interval = "1h"
-        else:
-            interval = "1d"
+        yf_period, interval = valid_periods[period]
         
         data = stock.history(period=yf_period, interval=interval)
         
         if data.empty:
-            raise InvalidStockSymbolError(f"No data available for symbol: {symbol}. Please enter a valid stock symbol.")
+            raise InvalidStockSymbolError(f"No data available for symbol: {symbol} with period {period}. Please try a different period or stock symbol.")
         
         support, resistance = calculate_support_resistance(data)
         
@@ -127,10 +120,14 @@ def get_advanced_stock_data(symbol, period="1mo"):
         data['Resistance'] = resistance
         
         return data
-    except Exception as e:
-        logging.error(f"Error fetching advanced stock data for {symbol}: {str(e)}")
+    except yf.exceptions.YFinanceException as yfe:
+        logging.error(f"YFinance error for {symbol} with period {period}: {str(yfe)}")
         logging.error(traceback.format_exc())
-        raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol}. Please try again or enter a different symbol.")
+        raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol} with period {period}. The data might not be available for this time frame.")
+    except Exception as e:
+        logging.error(f"Error fetching advanced stock data for {symbol} with period {period}: {str(e)}")
+        logging.error(traceback.format_exc())
+        raise InvalidStockSymbolError(f"Error fetching data for symbol: {symbol} with period {period}. Please try again or enter a different symbol.")
 
 def get_sector_contribution(stock):
     return {
